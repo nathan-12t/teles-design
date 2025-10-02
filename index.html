@@ -8,10 +8,10 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     * { font-family: 'Inter', sans-serif; }
+    body { box-sizing: border-box; }
     .gradient-bg { background: linear-gradient(135deg, #d2691e 0%, #a0522d 100%); }
     .card-hover { transition: all .3s ease; }
     .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -10px rgba(0,0,0,.15);}
-    .emoji-3d { text-shadow: 2px 2px 4px rgba(0,0,0,.25); }
     .nav-btn.active { border-color:#d2691e !important; color:#d2691e !important; }
     .book-card { background: linear-gradient(145deg, #ffffff, #f3f3f3); border: 1px solid #e6e6e6; }
     .transition-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#d2691e,#a0522d);z-index:50;opacity:0;visibility:hidden;transition:all .5s ease}
@@ -29,7 +29,7 @@
     </div>
   </div>
 
-  <!-- Login (sem dica) -->
+  <!-- Login -->
   <section id="loginScreen" class="min-h-screen gradient-bg flex items-center justify-center p-4">
     <div class="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 w-full max-w-md">
       <div class="text-center mb-8">
@@ -72,7 +72,8 @@
         </div>
         <div class="flex items-center gap-2">
           <span id="userWelcome" class="text-sm opacity-90"></span>
-          <button id="trocarSenhaBtn" onclick="showTrocarSenhaModal()" class="bg-amber-700 hover:bg-amber-800 px-3 py-2 rounded-lg hidden">🔑 Trocar Senha</button>
+          <button id="trocarSenhaBtn" class="bg-amber-700 hover:bg-amber-800 px-3 py-2 rounded-lg hidden">🔑 Trocar Senha</button>
+          <button id="backupBtn" class="bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg hidden">💾 Backup</button>
           <button onclick="logout()" class="bg-red-700 hover:bg-red-800 px-3 py-2 rounded-lg">Sair</button>
         </div>
       </div>
@@ -153,7 +154,7 @@
           <div id="livrosActions" class="space-x-2">
             <button onclick="showModal('addBookModal')" class="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg">➕ Adicionar</button>
             <button onclick="showModal('importBooksModal')" class="bg-amber-800 hover:bg-amber-900 text-white px-4 py-2 rounded-lg">📄 Importar</button>
-            <button id="clearLibraryBtn" onclick="showClearLibraryModal()" class="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg hidden">🗑️ Limpar</button>
+            <button id="clearLibraryBtn" onclick="showModal('clearLibraryModal')" class="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg hidden">🗑️ Limpar</button>
           </div>
         </div>
 
@@ -423,60 +424,6 @@
     </div>
   </div>
 
-  <!-- Edit Usuário -->
-  <div id="editUserModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl p-6 w-full max-w-lg">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xl font-bold">Editar Usuário</h3>
-        <button onclick="closeModal('editUserModal')" class="text-gray-500 hover:text-gray-700">✕</button>
-      </div>
-      <form id="editUserForm" class="space-y-4">
-        <input type="hidden" name="id" id="editUserId"/>
-        <div><label class="block text-sm font-medium mb-1">Nome *</label><input id="editUserNome" name="nome" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-        <div><label class="block text-sm font-medium mb-1">Login *</label><input id="editUserLogin" name="login" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-        <div><label class="block text-sm font-medium mb-1">Nova Senha</label><input type="password" id="editUserSenha" name="senha" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Tipo de Usuário *</label>
-          <select id="editUserTipo" name="tipo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" onchange="toggleEditTurmaField(this)">
-            <option value="">Selecione...</option>
-            <option value="aluno">Aluno</option>
-            <option value="professor">Professor</option>
-            <option value="diretor">Diretor</option>
-            <option value="coordenador">Coordenador</option>
-            <option value="ajudante">Ajudante</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-        <div id="editTurmaField" class="hidden">
-          <label class="block text-sm font-medium mb-1">Turma</label>
-          <select id="editUserTurma" name="turma" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
-            <option value="">Selecione a turma...</option>
-            <optgroup label="Ensino Fundamental (EF)">
-              <option value="1-A EF">1º A EF</option><option value="1-B EF">1º B EF</option><option value="1-C EF">1º C EF</option><option value="1-D EF">1º D EF</option><option value="1-E EF">1º E EF</option>
-              <option value="2-A EF">2º A EF</option><option value="2-B EF">2º B EF</option><option value="2-C EF">2º C EF</option><option value="2-D EF">2º D EF</option><option value="2-E EF">2º E EF</option>
-              <option value="3-A EF">3º A EF</option><option value="3-B EF">3º B EF</option><option value="3-C EF">3º C EF</option><option value="3-D EF">3º D EF</option><option value="3-E EF">3º E EF</option>
-              <option value="4-A EF">4º A EF</option><option value="4-B EF">4º B EF</option><option value="4-C EF">4º C EF</option><option value="4-D EF">4º D EF</option><option value="4-E EF">4º E EF</option>
-              <option value="5-A EF">5º A EF</option><option value="5-B EF">5º B EF</option><option value="5-C EF">5º C EF</option><option value="5-D EF">5º D EF</option><option value="5-E EF">5º E EF</option>
-              <option value="6-A EF">6º A EF</option><option value="6-B EF">6º B EF</option><option value="6-C EF">6º C EF</option><option value="6-D EF">6º D EF</option><option value="6-E EF">6º E EF</option>
-              <option value="7-A EF">7º A EF</option><option value="7-B EF">7º B EF</option><option value="7-C EF">7º C EF</option><option value="7-D EF">7º D EF</option><option value="7-E EF">7º E EF</option>
-              <option value="8-A EF">8º A EF</option><option value="8-B EF">8º B EF</option><option value="8-C EF">8º C EF</option><option value="8-D EF">8º D EF</option><option value="8-E EF">8º E EF</option>
-              <option value="9-A EF">9º A EF</option><option value="9-B EF">9º B EF</option><option value="9-C EF">9º C EF</option><option value="9-D EF">9º D EF</option><option value="9-E EF">9º E EF</option>
-            </optgroup>
-            <optgroup label="Ensino Médio (EM)">
-              <option value="1-A EM">1º A EM</option><option value="1-B EM">1º B EM</option><option value="1-C EM">1º C EM</option><option value="1-D EM">1º D EM</option><option value="1-E EM">1º E EM</option>
-              <option value="2-A EM">2º A EM</option><option value="2-B EM">2º B EM</option><option value="2-C EM">2º C EM</option><option value="2-D EM">2º D EM</option><option value="2-E EM">2º E EM</option>
-              <option value="3-A EM">3º A EM</option><option value="3-B EM">3º B EM</option><option value="3-C EM">3º C EM</option><option value="3-D EM">3º D EM</option><option value="3-E EM">3º E EM</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="flex justify-end gap-2">
-          <button type="button" onclick="closeModal('editUserModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
-          <button class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg">Salvar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <!-- Add Usuário -->
   <div id="addUserModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl p-6 w-full max-w-lg">
@@ -582,29 +529,6 @@
     </div>
   </div>
 
-  <!-- Detalhes do Livro -->
-  <div id="detalhesLivroModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xl font-bold">Detalhes do Livro</h3>
-        <button onclick="closeModal('detalhesLivroModal')" class="text-gray-500 hover:text-gray-700">✕</button>
-      </div>
-      <div id="detalhesLivroContent" class="space-y-4"></div>
-      <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closeModal('detalhesLivroModal')" class="px-4 py-2 border rounded-lg">Fechar</button>
-        <button id="avaliarLivroBtn" onclick="avaliarLivroFromDetalhes()" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg hidden">⭐ Avaliar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Zoom Foto -->
-  <div id="zoomFotoModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-50" onclick="closeZoomFoto()">
-    <div class="relative p-4">
-      <button onclick="closeZoomFoto()" class="absolute -top-2 -right-2 text-white text-3xl">✕</button>
-      <img id="zoomFotoImg" src="" alt="" class="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl" onclick="event.stopPropagation()">
-    </div>
-  </div>
-
   <!-- Trocar Senha -->
   <div id="trocarSenhaModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl p-6 w-full max-w-md">
@@ -626,276 +550,501 @@
     </div>
   </div>
 
-  <!-- Avaliação -->
-  <div id="avaliacaoModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl p-6 w-full max-w-lg">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xl font-bold">Avaliar Livro</h3>
-        <button onclick="closeModal('avaliacaoModal')" class="text-gray-500 hover:text-gray-700">✕</button>
+  <!-- Backup Modal -->
+  <div id="backupModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold text-blue-600">💾 Backup e Restauração</h3>
+        <button onclick="closeModal('backupModal')" class="text-gray-500 hover:text-gray-700">✕</button>
       </div>
-      <form id="avaliacaoForm" class="space-y-4" data-emprestimo-id="" data-livro-id="">
-        <div id="livroAvaliacaoInfo" class="p-3 bg-gray-50 rounded"></div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Sua Avaliação</label>
+      
+      <div class="space-y-6">
+        <!-- Fazer Backup -->
+        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+          <h4 class="font-semibold text-blue-800 mb-2">📤 Fazer Backup</h4>
+          <p class="text-sm text-blue-700 mb-3">Salve todos os dados da biblioteca em um arquivo.</p>
           <div class="flex gap-2">
-            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="1">⭐</button>
-            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="2">⭐</button>
-            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="3">⭐</button>
-            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="4">⭐</button>
-            <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400" data-rating="5">⭐</button>
+            <button onclick="exportarBackup()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">💾 Baixar Backup</button>
+            <button onclick="copiarBackup()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">📋 Copiar Dados</button>
           </div>
-          <input type="hidden" id="avaliacaoValue" name="avaliacao"/>
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Comentário</label>
-          <textarea name="comentario" rows="4" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="Conte o que achou..."></textarea>
+
+        <!-- Restaurar Backup -->
+        <div class="bg-green-50 border border-green-200 p-4 rounded-lg">
+          <h4 class="font-semibold text-green-800 mb-2">📥 Restaurar Backup</h4>
+          <p class="text-sm text-green-700 mb-3">Carregue dados de um backup anterior.</p>
+          
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm font-medium mb-1">Arquivo de Backup</label>
+              <input type="file" id="backupFile" accept=".json,.txt" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+            </div>
+            
+            <div class="text-sm text-gray-600">ou</div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1">Cole os dados do backup</label>
+              <textarea id="backupText" rows="6" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" placeholder="Cole aqui o conteúdo do backup..."></textarea>
+            </div>
+            
+            <div class="bg-yellow-50 border border-yellow-200 p-3 rounded text-sm text-yellow-800">
+              ⚠️ <strong>Atenção:</strong> Restaurar um backup substituirá TODOS os dados atuais.
+            </div>
+            
+            <button onclick="restaurarBackup()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">📥 Restaurar Backup</button>
+          </div>
         </div>
-        <div class="flex justify-end gap-2">
-          <button type="button" onclick="closeModal('avaliacaoModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
-          <button class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg">Enviar</button>
+
+        <!-- Estatísticas -->
+        <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+          <h4 class="font-semibold text-gray-800 mb-2">📊 Dados Atuais</h4>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>📚 <span id="backupStatsLivros">0</span> livros</div>
+            <div>👥 <span id="backupStatsUsuarios">0</span> usuários</div>
+            <div>📋 <span id="backupStatsEmprestimos">0</span> empréstimos</div>
+            <div>⭐ <span id="backupStatsAvaliacoes">0</span> avaliações</div>
+          </div>
         </div>
-      </form>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4">
+        <button onclick="closeModal('backupModal')" class="px-4 py-2 border rounded-lg">Fechar</button>
+      </div>
     </div>
   </div>
 
   <script>
-    // Banco de dados padrão
+    // ===== BANCO DE DADOS =====
     const defaultDB = {
       usuarios: [
-        { id: 1, nome: 'Administrador', login: 'ADMIN', senha: 'VANIA25', tipo: 'admin', turma: '', status: 'ativo', livrosLidos: 0 }
+        { 
+          id: 1, 
+          nome: 'Administrador', 
+          login: 'ADMIN', 
+          senha: 'VANIA25', 
+          tipo: 'admin', 
+          turma: '', 
+          status: 'ativo', 
+          livrosLidos: 0 
+        }
       ],
       livros: [
-        { id:1, titulo:'Dom Casmurro', autor:'Machado de Assis', editora:'Ática', categoria:'Literatura Brasileira', subcategoria:'Romance', quantidade:5, disponivel:5, descricao:'Clássico da literatura brasileira.', foto:'', codigoBarra:'123456789', localizacao:'Corredor A', avaliacoes:[] },
-        { id:2, titulo:'O Cortiço', autor:'Aluísio Azevedo', editora:'Moderna', categoria:'Literatura Brasileira', subcategoria:'Naturalismo', quantidade:3, disponivel:3, descricao:'Vida em um cortiço do RJ.', foto:'', codigoBarra:'987654321', localizacao:'Corredor B', avaliacoes:[] }
+        { 
+          id: 1, 
+          titulo: 'Dom Casmurro', 
+          autor: 'Machado de Assis', 
+          editora: 'Ática', 
+          categoria: 'Literatura Brasileira', 
+          subcategoria: 'Romance', 
+          quantidade: 5, 
+          disponivel: 5, 
+          descricao: 'Clássico da literatura brasileira.', 
+          foto: '', 
+          codigoBarra: '123456789', 
+          localizacao: 'Corredor A', 
+          avaliacoes: [] 
+        },
+        { 
+          id: 2, 
+          titulo: 'O Cortiço', 
+          autor: 'Aluísio Azevedo', 
+          editora: 'Moderna', 
+          categoria: 'Literatura Brasileira', 
+          subcategoria: 'Naturalismo', 
+          quantidade: 3, 
+          disponivel: 3, 
+          descricao: 'Vida em um cortiço do RJ.', 
+          foto: '', 
+          codigoBarra: '987654321', 
+          localizacao: 'Corredor B', 
+          avaliacoes: [] 
+        }
       ],
       emprestimos: [],
       nextId: { usuarios: 2, livros: 3, emprestimos: 1 }
     };
 
+    // ===== VARIÁVEIS GLOBAIS =====
     let database = null;
     let currentUser = null;
 
-    // Utils
-    function safeParse(json) { try { return JSON.parse(json); } catch { return null; } }
-    function saveDatabase() { localStorage.setItem('bibliOnDatabase', JSON.stringify(database)); }
-    function showModal(id){ const m = document.getElementById(id); m.classList.remove('hidden'); m.classList.add('flex'); }
-    function closeModal(id){ const m = document.getElementById(id); m.classList.add('hidden'); m.classList.remove('flex'); }
-    function formatDate(d){ return new Date(d).toLocaleDateString('pt-BR'); }
-
-    // Bootstrap base localStorage (garante ADMIN)
-    function bootstrapDatabase() {
-      const saved = localStorage.getItem('bibliOnDatabase');
-      const parsed = safeParse(saved);
-      if (!parsed || !parsed.usuarios || !Array.isArray(parsed.usuarios)) {
-        database = JSON.parse(JSON.stringify(defaultDB));
-        saveDatabase();
-      } else {
-        database = parsed;
-        if (!database.nextId) database.nextId = { usuarios: 2, livros: 3, emprestimos: 1 };
-        const hasAdmin = database.usuarios.some(u => (u.login || '').toUpperCase() === 'ADMIN');
-        if (!hasAdmin) {
-          database.usuarios.push({ id: database.nextId.usuarios++, nome: 'Administrador', login: 'ADMIN', senha: 'VANIA25', tipo: 'admin', turma: '', status: 'ativo', livrosLidos: 0 });
-        }
-        saveDatabase();
+    // ===== FUNÇÕES UTILITÁRIAS =====
+    function safeParse(json) {
+      try {
+        return JSON.parse(json);
+      } catch {
+        return null;
       }
     }
 
-    // LOGIN
-    function handleLogin(e){
-      e.preventDefault();
+    function saveDatabase() {
+      localStorage.setItem('bibliOnDatabase', JSON.stringify(database));
+    }
+
+    function showModal(id) {
+      const modal = document.getElementById(id);
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function formatDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString('pt-BR');
+    }
+
+    // ===== INICIALIZAÇÃO DO BANCO =====
+    function initializeDatabase() {
+      console.log('🔧 Inicializando banco de dados...');
+      
+      const saved = localStorage.getItem('bibliOnDatabase');
+      console.log('💾 Dados salvos encontrados:', !!saved);
+      
+      if (!saved) {
+        console.log('✨ Criando banco padrão...');
+        database = JSON.parse(JSON.stringify(defaultDB));
+        saveDatabase();
+      } else {
+        const parsed = safeParse(saved);
+        if (!parsed || !parsed.usuarios || !Array.isArray(parsed.usuarios)) {
+          console.log('⚠️ Dados corrompidos, recriando...');
+          database = JSON.parse(JSON.stringify(defaultDB));
+          saveDatabase();
+        } else {
+          database = parsed;
+          
+          // Garantir estrutura
+          if (!database.nextId) {
+            database.nextId = { usuarios: 2, livros: 3, emprestimos: 1 };
+          }
+          
+          // Garantir admin
+          const hasAdmin = database.usuarios.some(u => 
+            u && u.login && u.login.toUpperCase() === 'ADMIN'
+          );
+          
+          if (!hasAdmin) {
+            console.log('👑 Adicionando usuário ADMIN...');
+            database.usuarios.push({
+              id: database.nextId.usuarios++,
+              nome: 'Administrador',
+              login: 'ADMIN',
+              senha: 'VANIA25',
+              tipo: 'admin',
+              turma: '',
+              status: 'ativo',
+              livrosLidos: 0
+            });
+            saveDatabase();
+          }
+        }
+      }
+      
+      console.log('✅ Banco inicializado:', {
+        usuarios: database.usuarios.length,
+        livros: database.livros.length,
+        emprestimos: database.emprestimos.length
+      });
+    }
+
+    // ===== SISTEMA DE LOGIN =====
+    function handleLogin(event) {
+      event.preventDefault();
+      
       const userInput = document.getElementById('loginUser').value.trim();
-      const pwdInput = document.getElementById('loginPassword').value;
-      if (!userInput || !pwdInput) { alert('Informe usuário e senha.'); return; }
-
-      const user = database.usuarios.find(u =>
-        (u.login || '').toLowerCase() === userInput.toLowerCase() &&
-        u.senha === pwdInput &&
-        u.status === 'ativo'
-      );
-
-      if (!user) { alert('Usuário ou senha incorretos ou usuário bloqueado.'); return; }
-
+      const passwordInput = document.getElementById('loginPassword').value;
+      
+      console.log('🔐 Tentativa de login:', { usuario: userInput, senha: '***' });
+      
+      if (!userInput || !passwordInput) {
+        alert('Por favor, preencha usuário e senha.');
+        return;
+      }
+      
+      // Buscar usuário
+      const user = database.usuarios.find(u => {
+        if (!u || !u.login || !u.senha) return false;
+        
+        const loginMatch = u.login.toUpperCase() === userInput.toUpperCase();
+        const passwordMatch = u.senha === passwordInput;
+        const isActive = u.status === 'ativo';
+        
+        return loginMatch && passwordMatch && isActive;
+      });
+      
+      if (!user) {
+        console.log('❌ Login falhou');
+        alert('Usuário ou senha incorretos, ou usuário bloqueado.\n\n' +
+              '🔑 Credenciais padrão:\n' +
+              'Usuário: ADMIN\n' +
+              'Senha: VANIA25');
+        return;
+      }
+      
+      console.log('✅ Login bem-sucedido:', user.nome);
       currentUser = user;
       showTransition();
     }
 
-    function showTransition(){
-      const t = document.getElementById('transitionScreen');
-      t.classList.add('active');
+    function showTransition() {
+      const transition = document.getElementById('transitionScreen');
+      transition.classList.add('active');
+      
       setTimeout(() => {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainSystem').classList.remove('hidden');
-        t.classList.remove('active');
-        setupUI();
+        transition.classList.remove('active');
+        setupUserInterface();
         showTab('inicio');
       }, 800);
     }
 
-    function setupUI(){
+    function setupUserInterface() {
       document.getElementById('userWelcome').textContent = `Olá, ${currentUser.nome}`;
+      
       const isAdmin = currentUser.tipo === 'admin';
-      const isAluno = currentUser.tipo === 'aluno';
-
-      // Reset visibilidade
+      const isStudent = currentUser.tipo === 'aluno';
+      
+      // Resetar visibilidade
       document.getElementById('usuariosTabBtn').classList.remove('hidden');
       document.getElementById('usuariosCard').classList.remove('hidden');
       document.getElementById('addEmprestimoBtn').classList.remove('hidden');
       document.getElementById('meusEmprestimos').classList.add('hidden');
       document.getElementById('livrosActions').classList.remove('hidden');
-
-      // Admin
+      
+      // Configurar para admin
       document.getElementById('clearLibraryBtn').classList.toggle('hidden', !isAdmin);
       document.getElementById('trocarSenhaBtn').classList.toggle('hidden', !isAdmin);
-
-      // Aluno
-      if (isAluno){
+      document.getElementById('backupBtn').classList.toggle('hidden', !isAdmin);
+      
+      // Configurar para aluno
+      if (isStudent) {
         document.getElementById('usuariosTabBtn').classList.add('hidden');
         document.getElementById('usuariosCard').classList.add('hidden');
         document.getElementById('addEmprestimoBtn').classList.add('hidden');
         document.getElementById('meusEmprestimos').classList.remove('hidden');
         document.getElementById('livrosActions').classList.add('hidden');
       }
-
+      
       updateDashboard();
     }
 
-    function logout(){
+    function logout() {
       currentUser = null;
       document.getElementById('mainSystem').classList.add('hidden');
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('loginForm').reset();
     }
 
-    // Tabs
-    function showTab(tab){
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-      document.getElementById(tab+'Tab').classList.remove('hidden');
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        if (btn.onclick && btn.onclick.toString().includes(`'${tab}'`)) btn.classList.add('active');
+    // ===== SISTEMA DE ABAS =====
+    function showTab(tabName) {
+      // Esconder todas as abas
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
       });
-      if (tab === 'inicio') updateDashboard();
-      if (tab === 'livros') { loadLivros(); loadFilterOptions(); }
-      if (tab === 'emprestimos') { loadEmprestimos(); loadTurmasFilter(); }
-      if (tab === 'devolucoes') { loadDevolucoesPendentes(); }
-      if (tab === 'usuarios') loadUsuarios();
+      
+      // Mostrar aba selecionada
+      document.getElementById(tabName + 'Tab').classList.remove('hidden');
+      
+      // Atualizar navegação
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.onclick && btn.onclick.toString().includes(`'${tabName}'`)) {
+          btn.classList.add('active');
+        }
+      });
+      
+      // Carregar dados específicos da aba
+      switch (tabName) {
+        case 'inicio':
+          updateDashboard();
+          break;
+        case 'livros':
+          loadLivros();
+          loadFilterOptions();
+          break;
+        case 'emprestimos':
+          loadEmprestimos();
+          loadTurmasFilter();
+          break;
+        case 'devolucoes':
+          loadDevolucoesPendentes();
+          break;
+        case 'usuarios':
+          loadUsuarios();
+          break;
+      }
     }
 
-    // Dashboard
-    function updateDashboard(){
+    // ===== DASHBOARD =====
+    function updateDashboard() {
       document.getElementById('totalLivros').textContent = database.livros.length;
-      document.getElementById('totalEmprestimos').textContent = database.emprestimos.filter(e=>e.status==='ativo').length;
-      document.getElementById('totalUsuarios').textContent = database.usuarios.filter(u=>u.status==='ativo').length;
+      document.getElementById('totalEmprestimos').textContent = 
+        database.emprestimos.filter(e => e.status === 'ativo').length;
+      document.getElementById('totalUsuarios').textContent = 
+        database.usuarios.filter(u => u.status === 'ativo').length;
+      
       const hoje = new Date();
-      const pend = database.emprestimos.filter(e => e.status==='ativo' && new Date(e.dataDevolucao) < hoje).length;
-      document.getElementById('totalPendentes').textContent = pend;
+      const pendentes = database.emprestimos.filter(e => 
+        e.status === 'ativo' && new Date(e.dataDevolucao) < hoje
+      ).length;
+      document.getElementById('totalPendentes').textContent = pendentes;
+      
       loadLivrosDestaque();
-      if (currentUser?.tipo === 'aluno') loadEmprestimosAluno();
+      
+      if (currentUser?.tipo === 'aluno') {
+        loadEmprestimosAluno();
+      }
     }
 
-    // Livros em destaque
-    function loadLivrosDestaque(){
-      const c = document.getElementById('livrosDestaque');
-      if (database.livros.length === 0) { c.innerHTML = '<div class="col-span-full text-center text-gray-500">Sem livros ainda.</div>'; return; }
-      let arr = [...database.livros];
-      arr.sort((a,b)=>{
-        const ma = a.avaliacoes.length ? a.avaliacoes.reduce((s,x)=>s+x.nota,0)/a.avaliacoes.length : 0;
-        const mb = b.avaliacoes.length ? b.avaliacoes.reduce((s,x)=>s+x.nota,0)/b.avaliacoes.length : 0;
-        if (mb!==ma) return mb-ma;
-        if (b.disponivel!==a.disponivel) return b.disponivel-a.disponivel;
+    function loadLivrosDestaque() {
+      const container = document.getElementById('livrosDestaque');
+      
+      if (database.livros.length === 0) {
+        container.innerHTML = '<div class="col-span-full text-center text-gray-500">Nenhum livro cadastrado ainda.</div>';
+        return;
+      }
+      
+      let livros = [...database.livros];
+      
+      // Ordenar por avaliação, disponibilidade e ID
+      livros.sort((a, b) => {
+        const mediaA = a.avaliacoes.length ? 
+          a.avaliacoes.reduce((sum, av) => sum + av.nota, 0) / a.avaliacoes.length : 0;
+        const mediaB = b.avaliacoes.length ? 
+          b.avaliacoes.reduce((sum, av) => sum + av.nota, 0) / b.avaliacoes.length : 0;
+        
+        if (mediaB !== mediaA) return mediaB - mediaA;
+        if (b.disponivel !== a.disponivel) return b.disponivel - a.disponivel;
         return b.id - a.id;
       });
-      arr = arr.slice(0,5);
-      c.innerHTML = arr.map(l=>{
-        const media = l.avaliacoes.length ? (l.avaliacoes.reduce((s,x)=>s+x.nota,0)/l.avaliacoes.length).toFixed(1) : 0;
-        const clickable = currentUser?.tipo === 'aluno';
+      
+      livros = livros.slice(0, 5);
+      
+      container.innerHTML = livros.map(livro => {
+        const media = livro.avaliacoes.length ? 
+          (livro.avaliacoes.reduce((sum, av) => sum + av.nota, 0) / livro.avaliacoes.length).toFixed(1) : 0;
+        
         return `
-          <div class="book-card rounded-lg p-4 text-center card-hover ${clickable?'cursor-pointer':''}" ${clickable?`onclick="showDetalhesLivro(${l.id})"`:''}>
+          <div class="book-card rounded-lg p-4 text-center card-hover">
             <div class="w-16 h-20 mx-auto rounded bg-gradient-to-b from-amber-600 to-amber-800 flex items-center justify-center overflow-hidden">
-              ${l.foto ? `<img src="${l.foto}" alt="${l.titulo}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : '<span class="text-2xl text-white">📖</span>'}
+              ${livro.foto ? 
+                `<img src="${livro.foto}" alt="${livro.titulo}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : 
+                '<span class="text-2xl text-white">📖</span>'
+              }
             </div>
-            <div class="mt-2 font-semibold text-sm truncate" title="${l.titulo}">${l.titulo}</div>
-            <div class="text-xs text-gray-600 truncate" title="${l.autor}">${l.autor}</div>
-            <div class="mt-1 text-xs ${l.disponivel>0?'text-green-600':'text-red-600'}">${l.disponivel>0?`${l.disponivel} disponível`:'Indisponível'}</div>
-            <div class="text-xs text-gray-500">${l.avaliacoes.length?`⭐ ${media} (${l.avaliacoes.length})`:'Sem avaliações'}</div>
+            <div class="mt-2 font-semibold text-sm truncate" title="${livro.titulo}">${livro.titulo}</div>
+            <div class="text-xs text-gray-600 truncate" title="${livro.autor}">${livro.autor}</div>
+            <div class="mt-1 text-xs ${livro.disponivel > 0 ? 'text-green-600' : 'text-red-600'}">
+              ${livro.disponivel > 0 ? `${livro.disponivel} disponível` : 'Indisponível'}
+            </div>
+            <div class="text-xs text-gray-500">
+              ${livro.avaliacoes.length ? `⭐ ${media} (${livro.avaliacoes.length})` : 'Sem avaliações'}
+            </div>
           </div>
         `;
       }).join('');
     }
 
-    // Meus empréstimos (aluno)
-    function loadEmprestimosAluno(){
-      const c = document.getElementById('emprestimosAluno');
-      const lista = database.emprestimos.filter(e=>e.alunoId===currentUser.id);
-      if (!lista.length) { c.innerHTML = '<div class="text-gray-500 text-center">Você não possui livros emprestados.</div>'; return; }
-      c.innerHTML = lista.map(e=>{
-        const l = database.livros.find(x=>x.id===e.livroId);
-        const atrasado = e.status==='ativo' && new Date(e.dataDevolucao) < new Date();
+    function loadEmprestimosAluno() {
+      const container = document.getElementById('emprestimosAluno');
+      const emprestimos = database.emprestimos.filter(e => e.alunoId === currentUser.id);
+      
+      if (!emprestimos.length) {
+        container.innerHTML = '<div class="text-gray-500 text-center">Você não possui livros emprestados.</div>';
+        return;
+      }
+      
+      container.innerHTML = emprestimos.map(emprestimo => {
+        const livro = database.livros.find(l => l.id === emprestimo.livroId);
+        const atrasado = emprestimo.status === 'ativo' && new Date(emprestimo.dataDevolucao) < new Date();
+        
         return `
-          <div class="flex items-center justify-between p-3 border rounded-lg ${atrasado?'bg-red-50 border-red-200':'bg-white'}">
+          <div class="flex items-center justify-between p-3 border rounded-lg ${atrasado ? 'bg-red-50 border-red-200' : 'bg-white'}">
             <div>
-              <div class="font-medium">${l?.titulo||'Livro'}</div>
-              <div class="text-sm text-gray-600">${l?.autor||''}</div>
-              <div class="text-xs ${atrasado?'text-red-600':'text-gray-500'}">Devolução: ${formatDate(e.dataDevolucao)} ${atrasado?'(ATRASADO)':''}</div>
-            </div>
-            <div>
-              ${e.status==='devolvido'?`<button onclick="showAvaliacaoModal(${e.id})" class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm">⭐ Avaliar</button>`:''}
+              <div class="font-medium">${livro?.titulo || 'Livro'}</div>
+              <div class="text-sm text-gray-600">${livro?.autor || ''}</div>
+              <div class="text-xs ${atrasado ? 'text-red-600' : 'text-gray-500'}">
+                Devolução: ${formatDate(emprestimo.dataDevolucao)} ${atrasado ? '(ATRASADO)' : ''}
+              </div>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // Lista de livros + filtros
-    function loadLivros(){
+    // ===== GERENCIAMENTO DE LIVROS =====
+    function loadLivros() {
       const container = document.getElementById('livrosList');
       const search = document.getElementById('searchLivros').value.toLowerCase().trim();
-      const cat = document.getElementById('filterCategoria').value.trim();
+      const categoria = document.getElementById('filterCategoria').value.trim();
       const autor = document.getElementById('filterAutor').value.trim();
-      const disp = document.getElementById('filterDisponibilidade').value.trim();
-
+      const disponibilidade = document.getElementById('filterDisponibilidade').value.trim();
+      
       let livros = [...database.livros];
+      
+      // Aplicar filtros
       if (search) {
-        livros = livros.filter(l =>
-          (l.titulo||'').toLowerCase().includes(search) ||
-          (l.autor||'').toLowerCase().includes(search) ||
-          (l.descricao||'').toLowerCase().includes(search) ||
-          (l.categoria||'').toLowerCase().includes(search) ||
-          (l.subcategoria||'').toLowerCase().includes(search) ||
-          (l.editora||'').toLowerCase().includes(search)
+        livros = livros.filter(livro =>
+          (livro.titulo || '').toLowerCase().includes(search) ||
+          (livro.autor || '').toLowerCase().includes(search) ||
+          (livro.descricao || '').toLowerCase().includes(search) ||
+          (livro.categoria || '').toLowerCase().includes(search) ||
+          (livro.subcategoria || '').toLowerCase().includes(search) ||
+          (livro.editora || '').toLowerCase().includes(search)
         );
       }
-      if (cat) livros = livros.filter(l => (l.categoria||'').trim()===cat);
-      if (autor) livros = livros.filter(l => (l.autor||'').trim()===autor);
-      if (disp==='disponivel') livros = livros.filter(l => l.disponivel>0);
-      if (disp==='indisponivel') livros = livros.filter(l => l.disponivel===0);
-
-      const canEdit = currentUser && ['admin','professor','diretor','coordenador','ajudante'].includes(currentUser.tipo);
-      container.innerHTML = livros.map(l=>{
-        const media = l.avaliacoes.length ? (l.avaliacoes.reduce((s,x)=>s+x.nota,0)/l.avaliacoes.length).toFixed(1) : 0;
+      
+      if (categoria) {
+        livros = livros.filter(livro => (livro.categoria || '').trim() === categoria);
+      }
+      
+      if (autor) {
+        livros = livros.filter(livro => (livro.autor || '').trim() === autor);
+      }
+      
+      if (disponibilidade === 'disponivel') {
+        livros = livros.filter(livro => livro.disponivel > 0);
+      } else if (disponibilidade === 'indisponivel') {
+        livros = livros.filter(livro => livro.disponivel === 0);
+      }
+      
+      const canEdit = currentUser && ['admin', 'professor', 'diretor', 'coordenador', 'ajudante'].includes(currentUser.tipo);
+      
+      container.innerHTML = livros.map(livro => {
+        const media = livro.avaliacoes.length ? 
+          (livro.avaliacoes.reduce((sum, av) => sum + av.nota, 0) / livro.avaliacoes.length).toFixed(1) : 0;
+        
         return `
-          <div class="book-card rounded-xl p-5 card-hover ${currentUser?.tipo==='aluno'?'cursor-pointer':''}" ${currentUser?.tipo==='aluno'?`onclick="showDetalhesLivro(${l.id})"`:''}>
+          <div class="book-card rounded-xl p-5 card-hover">
             <div class="flex gap-4">
               <div class="w-20 h-28 flex-shrink-0 rounded bg-gradient-to-b from-amber-600 to-amber-800 flex items-center justify-center overflow-hidden">
-                ${l.foto?`<img src="${l.foto}" alt="${l.titulo}" class="w-full h-full object-cover" onerror="this.style.display='none'">`:'<span class="text-3xl text-white">📖</span>'}
+                ${livro.foto ? 
+                  `<img src="${livro.foto}" alt="${livro.titulo}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : 
+                  '<span class="text-3xl text-white">📖</span>'
+                }
               </div>
               <div class="flex-1 min-w-0">
-                <div class="font-bold text-lg truncate">${l.titulo}</div>
-                <div class="text-gray-600">${l.autor}</div>
-                <div class="text-sm text-gray-500">${l.editora||'Editora não informada'}</div>
+                <div class="font-bold text-lg truncate">${livro.titulo}</div>
+                <div class="text-gray-600">${livro.autor}</div>
+                <div class="text-sm text-gray-500">${livro.editora || 'Editora não informada'}</div>
                 <div class="mt-2 text-sm flex gap-4">
-                  <span>📚 ${l.disponivel}/${l.quantidade}</span>
-                  <span>⭐ ${media} (${l.avaliacoes.length})</span>
-                  ${l.localizacao?`<span>📍 ${l.localizacao}</span>`:''}
+                  <span>📚 ${livro.disponivel}/${livro.quantidade}</span>
+                  <span>⭐ ${media} (${livro.avaliacoes.length})</span>
+                  ${livro.localizacao ? `<span>📍 ${livro.localizacao}</span>` : ''}
                 </div>
                 <div class="mt-3 flex gap-2">
-                  ${canEdit?`
-                    <button onclick="event.stopPropagation();editLivro(${l.id})" class="px-3 py-1 bg-amber-700 hover:bg-amber-800 text-white rounded text-sm">✏️ Editar</button>
-                    <button onclick="event.stopPropagation();deleteLivro(${l.id})" class="px-3 py-1 bg-red-700 hover:bg-red-800 text-white rounded text-sm">🗑️ Excluir</button>
-                  `:''}
-                  ${currentUser?.tipo==='aluno'?`
-                    <button onclick="event.stopPropagation();showAvaliacaoLivroModal(${l.id})" class="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-sm">⭐ Avaliar</button>
-                  `:''}
+                  ${canEdit ? `
+                    <button onclick="editLivro(${livro.id})" class="px-3 py-1 bg-amber-700 hover:bg-amber-800 text-white rounded text-sm">✏️ Editar</button>
+                    <button onclick="deleteLivro(${livro.id})" class="px-3 py-1 bg-red-700 hover:bg-red-800 text-white rounded text-sm">🗑️ Excluir</button>
+                  ` : ''}
                 </div>
               </div>
             </div>
@@ -904,604 +1053,948 @@
       }).join('');
     }
 
-    function loadFilterOptions(){
-      const categorias = [...new Set(database.livros.map(x=>x.categoria).filter(Boolean).map(x=>x.trim()))].sort();
-      const autores = [...new Set(database.livros.map(x=>x.autor).filter(Boolean).map(x=>x.trim()))].sort();
-      const catSel = document.getElementById('filterCategoria');
-      const autSel = document.getElementById('filterAutor');
-      const curCat = catSel.value, curAut = autSel.value;
-      catSel.innerHTML = '<option value="">Todas as categorias</option>' + categorias.map(c=>`<option ${c===curCat?'selected':''}>${c}</option>`).join('');
-      autSel.innerHTML = '<option value="">Todos os autores</option>' + autores.map(a=>`<option ${a===curAut?'selected':''}>${a}</option>`).join('');
+    function loadFilterOptions() {
+      const categorias = [...new Set(database.livros.map(l => l.categoria).filter(Boolean).map(c => c.trim()))].sort();
+      const autores = [...new Set(database.livros.map(l => l.autor).filter(Boolean).map(a => a.trim()))].sort();
+      
+      const categoriaSelect = document.getElementById('filterCategoria');
+      const autorSelect = document.getElementById('filterAutor');
+      
+      const currentCategoria = categoriaSelect.value;
+      const currentAutor = autorSelect.value;
+      
+      categoriaSelect.innerHTML = '<option value="">Todas as categorias</option>' + 
+        categorias.map(c => `<option ${c === currentCategoria ? 'selected' : ''}>${c}</option>`).join('');
+      
+      autorSelect.innerHTML = '<option value="">Todos os autores</option>' + 
+        autores.map(a => `<option ${a === currentAutor ? 'selected' : ''}>${a}</option>`).join('');
     }
 
-    function clearLivrosFilters(){ document.getElementById('searchLivros').value=''; document.getElementById('filterCategoria').value=''; document.getElementById('filterAutor').value=''; document.getElementById('filterDisponibilidade').value=''; loadLivros(); }
+    function clearLivrosFilters() {
+      document.getElementById('searchLivros').value = '';
+      document.getElementById('filterCategoria').value = '';
+      document.getElementById('filterAutor').value = '';
+      document.getElementById('filterDisponibilidade').value = '';
+      loadLivros();
+    }
 
-    // CRUD Livros helpers
-    function fileToBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=err=>rej(err); r.readAsDataURL(file); }); }
-
-    function verificarLivroDuplicado(titulo, autor, codigo, ignoreId=null){
-      const t = (titulo||'').toLowerCase().trim();
-      const a = (autor||'').toLowerCase().trim();
-      return database.livros.some(l=>{
-        if (ignoreId && l.id===ignoreId) return false;
-        const sameTA = (l.titulo||'').toLowerCase().trim()===t && (l.autor||'').toLowerCase().trim()===a;
-        const sameCode = codigo && l.codigoBarra && (l.codigoBarra+'').trim() === (codigo+'').trim();
-        return sameTA || sameCode;
+    // ===== CRUD LIVROS =====
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = err => reject(err);
+        reader.readAsDataURL(file);
       });
     }
 
-    async function handleAddBook(e){
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const titulo = fd.get('titulo'), autor = fd.get('autor'), codigo = fd.get('codigoBarra');
+    function verificarLivroDuplicado(titulo, autor, codigo, ignoreId = null) {
+      const tituloNorm = (titulo || '').toLowerCase().trim();
+      const autorNorm = (autor || '').toLowerCase().trim();
+      
+      return database.livros.some(livro => {
+        if (ignoreId && livro.id === ignoreId) return false;
+        
+        const sameTitleAuthor = (livro.titulo || '').toLowerCase().trim() === tituloNorm && 
+                               (livro.autor || '').toLowerCase().trim() === autorNorm;
+        
+        const sameCode = codigo && livro.codigoBarra && 
+                        (livro.codigoBarra + '').trim() === (codigo + '').trim();
+        
+        return sameTitleAuthor || sameCode;
+      });
+    }
 
-      if (verificarLivroDuplicado(titulo, autor, codigo)) { alert('Livro duplicado. Verifique título/autor/código.'); return; }
-
-      let foto = fd.get('foto') || '';
-      const f = fd.get('fotoFile');
-      if (f && f.size>0) { try { foto = await fileToBase64(f); } catch{} }
-
-      const qtd = parseInt(fd.get('quantidade'));
-      const novo = {
+    async function handleAddBook(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const titulo = formData.get('titulo');
+      const autor = formData.get('autor');
+      const codigo = formData.get('codigoBarra');
+      
+      if (verificarLivroDuplicado(titulo, autor, codigo)) {
+        alert('Livro duplicado. Verifique título/autor/código.');
+        return;
+      }
+      
+      let foto = formData.get('foto') || '';
+      const fotoFile = formData.get('fotoFile');
+      
+      if (fotoFile && fotoFile.size > 0) {
+        try {
+          foto = await fileToBase64(fotoFile);
+        } catch (error) {
+          console.error('Erro ao processar imagem:', error);
+        }
+      }
+      
+      const quantidade = parseInt(formData.get('quantidade'));
+      
+      const novoLivro = {
         id: database.nextId.livros++,
-        titulo, autor,
-        editora: fd.get('editora')||'',
-        categoria: fd.get('categoria')||'',
-        subcategoria: fd.get('subcategoria')||'',
-        quantidade: qtd,
-        disponivel: qtd,
-        descricao: fd.get('descricao')||'',
+        titulo,
+        autor,
+        editora: formData.get('editora') || '',
+        categoria: formData.get('categoria') || '',
+        subcategoria: formData.get('subcategoria') || '',
+        quantidade,
+        disponivel: quantidade,
+        descricao: formData.get('descricao') || '',
         foto,
-        codigoBarra: codigo||'',
-        localizacao: fd.get('localizacao')||'',
+        codigoBarra: codigo || '',
+        localizacao: formData.get('localizacao') || '',
         avaliacoes: []
       };
-      database.livros.push(novo);
+      
+      database.livros.push(novoLivro);
       saveDatabase();
+      
       closeModal('addBookModal');
-      e.target.reset();
-      loadLivros(); updateDashboard();
+      event.target.reset();
+      loadLivros();
+      updateDashboard();
+      
       alert('Livro adicionado com sucesso!');
     }
 
-    async function handleEditBook(e){
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const id = parseInt(fd.get('id'));
-      const l = database.livros.find(x=>x.id===id);
-      if (!l) return;
-
-      const titulo = fd.get('titulo'), autor = fd.get('autor'), codigo = fd.get('codigoBarra');
-      if (verificarLivroDuplicado(titulo, autor, codigo, id)) { alert('Conflito com outro livro existente.'); return; }
-
-      const novaQtd = parseInt(fd.get('quantidade'));
-      const dif = novaQtd - l.quantidade;
-      let foto = fd.get('foto') || l.foto;
-      const f = fd.get('fotoFile');
-      if (f && f.size>0) { try { foto = await fileToBase64(f); } catch{} }
-
-      l.titulo = titulo;
-      l.autor = autor;
-      l.editora = fd.get('editora')||'';
-      l.categoria = fd.get('categoria')||'';
-      l.subcategoria = fd.get('subcategoria')||'';
-      l.quantidade = novaQtd;
-      l.disponivel = Math.max(0, l.disponivel + dif);
-      l.descricao = fd.get('descricao')||'';
-      l.foto = foto;
-      l.codigoBarra = codigo||'';
-      l.localizacao = fd.get('localizacao')||'';
-
+    async function handleEditBook(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const id = parseInt(formData.get('id'));
+      const livro = database.livros.find(l => l.id === id);
+      
+      if (!livro) return;
+      
+      const titulo = formData.get('titulo');
+      const autor = formData.get('autor');
+      const codigo = formData.get('codigoBarra');
+      
+      if (verificarLivroDuplicado(titulo, autor, codigo, id)) {
+        alert('Conflito com outro livro existente.');
+        return;
+      }
+      
+      const novaQuantidade = parseInt(formData.get('quantidade'));
+      const diferenca = novaQuantidade - livro.quantidade;
+      
+      let foto = formData.get('foto') || livro.foto;
+      const fotoFile = formData.get('fotoFile');
+      
+      if (fotoFile && fotoFile.size > 0) {
+        try {
+          foto = await fileToBase64(fotoFile);
+        } catch (error) {
+          console.error('Erro ao processar imagem:', error);
+        }
+      }
+      
+      // Atualizar livro
+      livro.titulo = titulo;
+      livro.autor = autor;
+      livro.editora = formData.get('editora') || '';
+      livro.categoria = formData.get('categoria') || '';
+      livro.subcategoria = formData.get('subcategoria') || '';
+      livro.quantidade = novaQuantidade;
+      livro.disponivel = Math.max(0, livro.disponivel + diferenca);
+      livro.descricao = formData.get('descricao') || '';
+      livro.foto = foto;
+      livro.codigoBarra = codigo || '';
+      livro.localizacao = formData.get('localizacao') || '';
+      
       saveDatabase();
       closeModal('editBookModal');
-      loadLivros(); updateDashboard();
+      loadLivros();
+      updateDashboard();
+      
       alert('Livro atualizado!');
     }
 
-    function deleteLivro(id){
+    function deleteLivro(id) {
       if (!confirm('Excluir este livro?')) return;
-      const i = database.livros.findIndex(l=>l.id===id);
-      if (i>=0) { database.livros.splice(i,1); saveDatabase(); loadLivros(); updateDashboard(); }
+      
+      const index = database.livros.findIndex(l => l.id === id);
+      if (index >= 0) {
+        database.livros.splice(index, 1);
+        saveDatabase();
+        loadLivros();
+        updateDashboard();
+      }
     }
 
-    function editLivro(id){
-      const l = database.livros.find(x=>x.id===id); if (!l) return;
-      document.getElementById('editBookId').value = l.id;
-      document.getElementById('editBookTitulo').value = l.titulo;
-      document.getElementById('editBookCodigo').value = l.codigoBarra||'';
-      document.getElementById('editBookAutor').value = l.autor;
-      document.getElementById('editBookEditora').value = l.editora||'';
-      document.getElementById('editBookCategoria').value = l.categoria||'';
-      document.getElementById('editBookSubcategoria').value = l.subcategoria||'';
-      document.getElementById('editBookQuantidade').value = l.quantidade;
-      document.getElementById('editBookLocalizacao').value = l.localizacao||'';
-      document.getElementById('editBookDescricao').value = l.descricao||'';
-      document.getElementById('editBookFoto').value = l.foto||'';
+    function editLivro(id) {
+      const livro = database.livros.find(l => l.id === id);
+      if (!livro) return;
+      
+      document.getElementById('editBookId').value = livro.id;
+      document.getElementById('editBookTitulo').value = livro.titulo;
+      document.getElementById('editBookCodigo').value = livro.codigoBarra || '';
+      document.getElementById('editBookAutor').value = livro.autor;
+      document.getElementById('editBookEditora').value = livro.editora || '';
+      document.getElementById('editBookCategoria').value = livro.categoria || '';
+      document.getElementById('editBookSubcategoria').value = livro.subcategoria || '';
+      document.getElementById('editBookQuantidade').value = livro.quantidade;
+      document.getElementById('editBookLocalizacao').value = livro.localizacao || '';
+      document.getElementById('editBookDescricao').value = livro.descricao || '';
+      document.getElementById('editBookFoto').value = livro.foto || '';
+      
       showModal('editBookModal');
     }
 
-    // Empréstimos
-    function showAddEmprestimoModal(){
-      const sel = document.querySelector('#addEmprestimoModal select[name="aluno"]');
-      const alunos = database.usuarios.filter(u=>u.tipo==='aluno' && u.status==='ativo');
-      sel.innerHTML = '<option value="">Selecione o aluno...</option>' + alunos.map(a=>`<option value="${a.id}">${a.nome} (${a.turma||'Sem turma'})</option>`).join('');
-      if (currentUser?.tipo==='aluno'){ sel.value=currentUser.id; sel.disabled=true; document.getElementById('alunoSelectDiv').style.display='none'; } else { sel.disabled=false; document.getElementById('alunoSelectDiv').style.display='block'; }
-      const hoje = new Date(); const input = document.querySelector('#addEmprestimoModal input[name="dataDevolucao"]'); input.min = hoje.toISOString().split('T')[0];
+    function importBooks() {
+      const text = document.getElementById('importBooksText').value.trim();
+      if (!text) {
+        alert('Digite os dados dos livros para importar.');
+        return;
+      }
+      
+      const lines = text.split('\n').filter(line => line.trim());
+      let imported = 0;
+      let errors = [];
+      
+      lines.forEach((line, index) => {
+        const parts = line.split('|').map(p => p.trim());
+        
+        if (parts.length < 2) {
+          errors.push(`Linha ${index + 1}: Formato inválido`);
+          return;
+        }
+        
+        const [titulo, autor, codigo = '', categoria = '', estoque = '1', local = '', quantidade = ''] = parts;
+        
+        if (!titulo || !autor) {
+          errors.push(`Linha ${index + 1}: Título e autor são obrigatórios`);
+          return;
+        }
+        
+        if (verificarLivroDuplicado(titulo, autor, codigo)) {
+          errors.push(`Linha ${index + 1}: Livro duplicado`);
+          return;
+        }
+        
+        const qtd = parseInt(quantidade || estoque || '1') || 1;
+        
+        database.livros.push({
+          id: database.nextId.livros++,
+          titulo,
+          autor,
+          editora: '',
+          categoria,
+          subcategoria: '',
+          quantidade: qtd,
+          disponivel: qtd,
+          descricao: '',
+          foto: '',
+          codigoBarra: codigo,
+          localizacao: local,
+          avaliacoes: []
+        });
+        
+        imported++;
+      });
+      
+      if (imported > 0) {
+        saveDatabase();
+        loadLivros();
+        updateDashboard();
+      }
+      
+      closeModal('importBooksModal');
+      document.getElementById('importBooksText').value = '';
+      
+      let message = `${imported} livro(s) importado(s) com sucesso!`;
+      if (errors.length > 0) {
+        message += `\n\nErros:\n${errors.join('\n')}`;
+      }
+      
+      alert(message);
+    }
+
+    // ===== EMPRÉSTIMOS =====
+    function showAddEmprestimoModal() {
+      const alunoSelect = document.querySelector('#addEmprestimoModal select[name="aluno"]');
+      const alunos = database.usuarios.filter(u => u.tipo === 'aluno' && u.status === 'ativo');
+      
+      alunoSelect.innerHTML = '<option value="">Selecione o aluno...</option>' + 
+        alunos.map(aluno => `<option value="${aluno.id}">${aluno.nome} (${aluno.turma || 'Sem turma'})</option>`).join('');
+      
+      if (currentUser?.tipo === 'aluno') {
+        alunoSelect.value = currentUser.id;
+        alunoSelect.disabled = true;
+        document.getElementById('alunoSelectDiv').style.display = 'none';
+      } else {
+        alunoSelect.disabled = false;
+        document.getElementById('alunoSelectDiv').style.display = 'block';
+      }
+      
+      const hoje = new Date();
+      const dateInput = document.querySelector('#addEmprestimoModal input[name="dataDevolucao"]');
+      dateInput.min = hoje.toISOString().split('T')[0];
+      
       showModal('addEmprestimoModal');
     }
 
-    function searchLivrosEmprestimo(){
-      const q = document.getElementById('searchLivroEmprestimo').value.toLowerCase();
-      const c = document.getElementById('livroSuggestions');
-      if (q.length<2){ c.classList.add('hidden'); return; }
-      const arr = database.livros.filter(l=>l.disponivel>0 && (l.titulo||'').toLowerCase().includes(q));
-      if (!arr.length){ c.innerHTML = '<div class="p-3 text-gray-500">Nenhum livro encontrado</div>'; c.classList.remove('hidden'); return; }
-      c.innerHTML = arr.map(l=>`
-        <div class="p-3 hover:bg-gray-50 cursor-pointer border-b" onclick="selectLivroEmprestimo(${l.id})">
-          <div class="font-medium">${l.titulo}</div>
-          <div class="text-sm text-gray-600">${l.autor}</div>
-          <div class="text-xs text-green-600">${l.disponivel} disponível(is)</div>
+    function searchLivrosEmprestimo() {
+      const query = document.getElementById('searchLivroEmprestimo').value.toLowerCase();
+      const container = document.getElementById('livroSuggestions');
+      
+      if (query.length < 2) {
+        container.classList.add('hidden');
+        return;
+      }
+      
+      const livros = database.livros.filter(l => 
+        l.disponivel > 0 && (l.titulo || '').toLowerCase().includes(query)
+      );
+      
+      if (!livros.length) {
+        container.innerHTML = '<div class="p-3 text-gray-500">Nenhum livro encontrado</div>';
+        container.classList.remove('hidden');
+        return;
+      }
+      
+      container.innerHTML = livros.map(livro => `
+        <div class="p-3 hover:bg-gray-50 cursor-pointer border-b" onclick="selectLivroEmprestimo(${livro.id})">
+          <div class="font-medium">${livro.titulo}</div>
+          <div class="text-sm text-gray-600">${livro.autor}</div>
+          <div class="text-xs text-green-600">${livro.disponivel} disponível(is)</div>
         </div>
       `).join('');
-      c.classList.remove('hidden');
+      
+      container.classList.remove('hidden');
     }
 
-    function selectLivroEmprestimo(id){
-      const l = database.livros.find(x=>x.id===id);
+    function selectLivroEmprestimo(id) {
+      const livro = database.livros.find(l => l.id === id);
+      
       document.getElementById('livroId').value = id;
-      document.getElementById('livroInfo').innerHTML = `<div class="font-medium">${l.titulo}</div><div class="text-sm text-gray-600">${l.autor}</div><div class="text-xs text-green-600">${l.disponivel} disponível(is)</div>`;
+      document.getElementById('livroInfo').innerHTML = `
+        <div class="font-medium">${livro.titulo}</div>
+        <div class="text-sm text-gray-600">${livro.autor}</div>
+        <div class="text-xs text-green-600">${livro.disponivel} disponível(is)</div>
+      `;
+      
       document.getElementById('livroSelecionado').classList.remove('hidden');
       document.getElementById('livroSuggestions').classList.add('hidden');
-      document.getElementById('searchLivroEmprestimo').value = l.titulo;
+      document.getElementById('searchLivroEmprestimo').value = livro.titulo;
     }
 
-    function handleAddEmprestimo(e){
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const alunoId = parseInt(fd.get('aluno')) || currentUser.id;
-      const livroId = parseInt(fd.get('livro'));
-      const dataDev = fd.get('dataDevolucao');
-      if (!alunoId || !livroId || !dataDev) { alert('Preencha aluno, livro e data.'); return; }
-      const l = database.livros.find(x=>x.id===livroId);
-      if (!l || l.disponivel<=0){ alert('Livro indisponível.'); return; }
-      database.emprestimos.push({ id: database.nextId.emprestimos++, alunoId, livroId, dataEmprestimo: new Date().toISOString().split('T')[0], dataDevolucao: dataDev, status:'ativo' });
-      l.disponivel--;
+    function handleAddEmprestimo(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const alunoId = parseInt(formData.get('aluno')) || currentUser.id;
+      const livroId = parseInt(formData.get('livro'));
+      const dataDevolucao = formData.get('dataDevolucao');
+      
+      if (!alunoId || !livroId || !dataDevolucao) {
+        alert('Preencha todos os campos obrigatórios.');
+        return;
+      }
+      
+      const livro = database.livros.find(l => l.id === livroId);
+      if (!livro || livro.disponivel <= 0) {
+        alert('Livro indisponível.');
+        return;
+      }
+      
+      database.emprestimos.push({
+        id: database.nextId.emprestimos++,
+        alunoId,
+        livroId,
+        dataEmprestimo: new Date().toISOString().split('T')[0],
+        dataDevolucao,
+        status: 'ativo'
+      });
+      
+      livro.disponivel--;
+      
       saveDatabase();
       closeModal('addEmprestimoModal');
-      e.target.reset(); document.getElementById('livroSelecionado').classList.add('hidden');
-      loadEmprestimos(); updateDashboard();
-      alert('Empréstimo criado!');
+      event.target.reset();
+      document.getElementById('livroSelecionado').classList.add('hidden');
+      
+      loadEmprestimos();
+      updateDashboard();
+      
+      alert('Empréstimo criado com sucesso!');
     }
 
-    function loadEmprestimos(){
-      const c = document.getElementById('emprestimosList');
-      let arr = [...database.emprestimos];
-      if (currentUser?.tipo==='aluno') arr = arr.filter(e=>e.alunoId===currentUser.id);
-
+    function loadEmprestimos() {
+      const container = document.getElementById('emprestimosList');
+      let emprestimos = [...database.emprestimos];
+      
+      if (currentUser?.tipo === 'aluno') {
+        emprestimos = emprestimos.filter(e => e.alunoId === currentUser.id);
+      }
+      
       const search = document.getElementById('searchEmprestimos').value.toLowerCase().trim();
-      const di = document.getElementById('filterDataInicio').value.trim();
-      const df = document.getElementById('filterDataFim').value.trim();
+      const dataInicio = document.getElementById('filterDataInicio').value.trim();
+      const dataFim = document.getElementById('filterDataFim').value.trim();
       const turma = document.getElementById('filterTurma').value.trim();
-
-      if (search){
-        arr = arr.filter(e=>{
-          const a = database.usuarios.find(u=>u.id===e.alunoId);
-          const l = database.livros.find(x=>x.id===e.livroId);
-          return (a?.nome||'').toLowerCase().includes(search) ||
-                 (a?.turma||'').toLowerCase().includes(search) ||
-                 (l?.titulo||'').toLowerCase().includes(search) ||
-                 (l?.autor||'').toLowerCase().includes(search);
+      
+      if (search) {
+        emprestimos = emprestimos.filter(emprestimo => {
+          const aluno = database.usuarios.find(u => u.id === emprestimo.alunoId);
+          const livro = database.livros.find(l => l.id === emprestimo.livroId);
+          
+          return (aluno?.nome || '').toLowerCase().includes(search) ||
+                 (aluno?.turma || '').toLowerCase().includes(search) ||
+                 (livro?.titulo || '').toLowerCase().includes(search) ||
+                 (livro?.autor || '').toLowerCase().includes(search);
         });
       }
-      if (di) arr = arr.filter(e=>e.dataEmprestimo >= di);
-      if (df) arr = arr.filter(e=>e.dataEmprestimo <= df);
-      if (turma) arr = arr.filter(e=> (database.usuarios.find(u=>u.id===e.alunoId)?.turma||'').trim()===turma);
-
-      c.innerHTML = arr.map(e=>{
-        const a = database.usuarios.find(u=>u.id===e.alunoId);
-        const l = database.livros.find(x=>x.id===e.livroId);
-        const atrasado = e.status==='ativo' && new Date(e.dataDevolucao) < new Date();
+      
+      if (dataInicio) {
+        emprestimos = emprestimos.filter(e => e.dataEmprestimo >= dataInicio);
+      }
+      
+      if (dataFim) {
+        emprestimos = emprestimos.filter(e => e.dataEmprestimo <= dataFim);
+      }
+      
+      if (turma) {
+        emprestimos = emprestimos.filter(e => {
+          const aluno = database.usuarios.find(u => u.id === e.alunoId);
+          return (aluno?.turma || '').trim() === turma;
+        });
+      }
+      
+      container.innerHTML = emprestimos.map(emprestimo => {
+        const aluno = database.usuarios.find(u => u.id === emprestimo.alunoId);
+        const livro = database.livros.find(l => l.id === emprestimo.livroId);
+        const atrasado = emprestimo.status === 'ativo' && new Date(emprestimo.dataDevolucao) < new Date();
+        
         return `
-          <tr class="${atrasado?'bg-red-50':''}">
-            <td class="px-6 py-3 text-sm">${a?a.nome:'-' } ${a?.turma?`<br><span class="text-xs text-gray-500">${a.turma}</span>`:''}</td>
-            <td class="px-6 py-3 text-sm">${l?l.titulo:'-'} ${l?`<br><span class="text-xs text-gray-500">${l.autor}</span>`:''}</td>
-            <td class="px-6 py-3 text-sm">${formatDate(e.dataEmprestimo)}</td>
-            <td class="px-6 py-3 text-sm">${formatDate(e.dataDevolucao)}</td>
+          <tr class="${atrasado ? 'bg-red-50' : ''}">
+            <td class="px-6 py-3 text-sm">
+              ${aluno ? aluno.nome : '-'}
+              ${aluno?.turma ? `<br><span class="text-xs text-gray-500">${aluno.turma}</span>` : ''}
+            </td>
+            <td class="px-6 py-3 text-sm">
+              ${livro ? livro.titulo : '-'}
+              ${livro ? `<br><span class="text-xs text-gray-500">${livro.autor}</span>` : ''}
+            </td>
+            <td class="px-6 py-3 text-sm">${formatDate(emprestimo.dataEmprestimo)}</td>
+            <td class="px-6 py-3 text-sm">${formatDate(emprestimo.dataDevolucao)}</td>
             <td class="px-6 py-3">
-              <span class="px-2 py-1 rounded-full text-xs font-semibold ${e.status==='ativo'?(atrasado?'bg-red-100 text-red-700':'bg-yellow-100 text-yellow-700'):'bg-green-100 text-green-700'}">
-                ${e.status==='ativo'?(atrasado?'Atrasado':'Ativo'):'Devolvido'}
+              <span class="px-2 py-1 rounded-full text-xs font-semibold ${
+                emprestimo.status === 'ativo' ? 
+                  (atrasado ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') : 
+                  'bg-green-100 text-green-700'
+              }">
+                ${emprestimo.status === 'ativo' ? (atrasado ? 'Atrasado' : 'Ativo') : 'Devolvido'}
               </span>
             </td>
             <td class="px-6 py-3 text-sm">
-              ${e.status==='ativo'?`<button onclick="devolverLivro(${e.id})" class="text-green-700 hover:underline">✅ Devolver</button>`:''}
-              ${['admin','professor','diretor','coordenador','ajudante'].includes(currentUser?.tipo||'')?`<button onclick="deleteEmprestimo(${e.id})" class="text-red-700 hover:underline ml-2">🗑️</button>`:''}
+              ${emprestimo.status === 'ativo' ? 
+                `<button onclick="devolverLivro(${emprestimo.id})" class="text-green-700 hover:underline">✅ Devolver</button>` : 
+                ''
+              }
+              ${['admin', 'professor', 'diretor', 'coordenador', 'ajudante'].includes(currentUser?.tipo || '') ? 
+                `<button onclick="deleteEmprestimo(${emprestimo.id})" class="text-red-700 hover:underline ml-2">🗑️</button>` : 
+                ''
+              }
             </td>
           </tr>
         `;
       }).join('');
     }
 
-    function devolverLivro(id){
-      const e = database.emprestimos.find(x=>x.id===id); if (!e) return;
-      const l = database.livros.find(x=>x.id===e.livroId);
-      const a = database.usuarios.find(x=>x.id===e.alunoId);
-      e.status='devolvido'; e.dataRealDevolucao = new Date().toISOString().split('T')[0];
-      if (l) l.disponivel++;
-      if (a) a.livrosLidos = (a.livrosLidos||0)+1;
-      saveDatabase(); loadEmprestimos(); loadDevolucoesPendentes(); updateDashboard();
-      alert('Livro devolvido!');
+    function devolverLivro(id) {
+      const emprestimo = database.emprestimos.find(e => e.id === id);
+      if (!emprestimo) return;
+      
+      const livro = database.livros.find(l => l.id === emprestimo.livroId);
+      const aluno = database.usuarios.find(u => u.id === emprestimo.alunoId);
+      
+      emprestimo.status = 'devolvido';
+      emprestimo.dataRealDevolucao = new Date().toISOString().split('T')[0];
+      
+      if (livro) livro.disponivel++;
+      if (aluno) aluno.livrosLidos = (aluno.livrosLidos || 0) + 1;
+      
+      saveDatabase();
+      loadEmprestimos();
+      loadDevolucoesPendentes();
+      updateDashboard();
+      
+      alert('Livro devolvido com sucesso!');
     }
 
-    function deleteEmprestimo(id){
+    function deleteEmprestimo(id) {
       if (!confirm('Excluir este empréstimo?')) return;
-      const i = database.emprestimos.findIndex(x=>x.id===id);
-      if (i<0) return;
-      const e = database.emprestimos[i];
-      if (e.status==='ativo'){
-        const l = database.livros.find(x=>x.id===e.livroId);
-        if (l) l.disponivel++;
-      } else if (e.status==='devolvido'){
-        const a = database.usuarios.find(x=>x.id===e.alunoId);
-        if (a && a.livrosLidos>0) a.livrosLidos--;
+      
+      const index = database.emprestimos.findIndex(e => e.id === id);
+      if (index < 0) return;
+      
+      const emprestimo = database.emprestimos[index];
+      
+      if (emprestimo.status === 'ativo') {
+        const livro = database.livros.find(l => l.id === emprestimo.livroId);
+        if (livro) livro.disponivel++;
+      } else if (emprestimo.status === 'devolvido') {
+        const aluno = database.usuarios.find(u => u.id === emprestimo.alunoId);
+        if (aluno && aluno.livrosLidos > 0) aluno.livrosLidos--;
       }
-      database.emprestimos.splice(i,1);
-      saveDatabase(); loadEmprestimos(); updateDashboard();
+      
+      database.emprestimos.splice(index, 1);
+      saveDatabase();
+      loadEmprestimos();
+      updateDashboard();
     }
 
-    function loadDevolucoesPendentes(){
+    function loadDevolucoesPendentes() {
       const hoje = new Date();
-      let pend = database.emprestimos.filter(e=> e.status==='ativo' && new Date(e.dataDevolucao) < hoje);
-      if (currentUser?.tipo==='aluno') pend = pend.filter(e=>e.alunoId===currentUser.id);
-      const c = document.getElementById('devolucoesList');
-      c.innerHTML = pend.map(e=>{
-        const a = database.usuarios.find(u=>u.id===e.alunoId);
-        const l = database.livros.find(x=>x.id===e.livroId);
-        const dias = Math.max(0, Math.floor((hoje - new Date(e.dataDevolucao)) / 86400000));
+      let pendentes = database.emprestimos.filter(e => 
+        e.status === 'ativo' && new Date(e.dataDevolucao) < hoje
+      );
+      
+      if (currentUser?.tipo === 'aluno') {
+        pendentes = pendentes.filter(e => e.alunoId === currentUser.id);
+      }
+      
+      const container = document.getElementById('devolucoesList');
+      
+      container.innerHTML = pendentes.map(emprestimo => {
+        const aluno = database.usuarios.find(u => u.id === emprestimo.alunoId);
+        const livro = database.livros.find(l => l.id === emprestimo.livroId);
+        const diasAtraso = Math.max(0, Math.floor((hoje - new Date(emprestimo.dataDevolucao)) / 86400000));
+        
         return `
           <tr class="bg-red-50">
-            <td class="px-6 py-3 text-sm">${a?a.nome:'-'} ${a?.turma?`<br><span class="text-xs text-gray-500">${a.turma}</span>`:''}</td>
-            <td class="px-6 py-3 text-sm">${l?l.titulo:'-'} ${l?`<br><span class="text-xs text-gray-500">${l.autor}</span>`:''}</td>
-            <td class="px-6 py-3 text-sm">${formatDate(e.dataEmprestimo)}</td>
-            <td class="px-6 py-3 text-sm">${formatDate(e.dataDevolucao)}</td>
-            <td class="px-6 py-3 text-sm font-bold text-red-700">${dias} dia(s)</td>
-            <td class="px-6 py-3 text-sm"><button onclick="devolverLivro(${e.id})" class="text-green-700 hover:underline">✅ Devolver</button></td>
+            <td class="px-6 py-3 text-sm">
+              ${aluno ? aluno.nome : '-'}
+              ${aluno?.turma ? `<br><span class="text-xs text-gray-500">${aluno.turma}</span>` : ''}
+            </td>
+            <td class="px-6 py-3 text-sm">
+              ${livro ? livro.titulo : '-'}
+              ${livro ? `<br><span class="text-xs text-gray-500">${livro.autor}</span>` : ''}
+            </td>
+            <td class="px-6 py-3 text-sm">${formatDate(emprestimo.dataEmprestimo)}</td>
+            <td class="px-6 py-3 text-sm">${formatDate(emprestimo.dataDevolucao)}</td>
+            <td class="px-6 py-3 text-sm font-bold text-red-700">${diasAtraso} dia(s)</td>
+            <td class="px-6 py-3 text-sm">
+              <button onclick="devolverLivro(${emprestimo.id})" class="text-green-700 hover:underline">✅ Devolver</button>
+            </td>
           </tr>
         `;
       }).join('');
     }
 
-    function loadTurmasFilter(){
-      const turmas = [...new Set(database.usuarios.filter(u=>u.turma && u.turma.trim()!=='').map(u=>u.turma.trim()))].sort();
-      const sel = document.getElementById('filterTurma');
-      const cur = sel.value;
-      sel.innerHTML = '<option value="">Todas as turmas</option>' + turmas.map(t=>`<option ${t===cur?'selected':''}>${t}</option>`).join('');
+    function loadTurmasFilter() {
+      const turmas = [...new Set(database.usuarios
+        .filter(u => u.turma && u.turma.trim() !== '')
+        .map(u => u.turma.trim())
+      )].sort();
+      
+      const select = document.getElementById('filterTurma');
+      const currentValue = select.value;
+      
+      select.innerHTML = '<option value="">Todas as turmas</option>' + 
+        turmas.map(t => `<option ${t === currentValue ? 'selected' : ''}>${t}</option>`).join('');
     }
 
-    function clearEmprestimosFilters(){ document.getElementById('searchEmprestimos').value=''; document.getElementById('filterDataInicio').value=''; document.getElementById('filterDataFim').value=''; document.getElementById('filterTurma').value=''; loadEmprestimos(); }
+    function clearEmprestimosFilters() {
+      document.getElementById('searchEmprestimos').value = '';
+      document.getElementById('filterDataInicio').value = '';
+      document.getElementById('filterDataFim').value = '';
+      document.getElementById('filterTurma').value = '';
+      loadEmprestimos();
+    }
 
-    // Usuários
-    function loadUsuarios(){
+    // ===== USUÁRIOS =====
+    function loadUsuarios() {
       const search = document.getElementById('searchUsuarios').value.toLowerCase();
       const tipo = document.getElementById('filterTipoUsuario').value;
       const status = document.getElementById('filterStatusUsuario').value;
-      let arr = [...database.usuarios];
-      if (search) arr = arr.filter(u => (u.nome||'').toLowerCase().includes(search) || (u.login||'').toLowerCase().includes(search));
-      if (tipo) arr = arr.filter(u => u.tipo===tipo);
-      if (status) arr = arr.filter(u => u.status===status);
-
-      const canDelete = currentUser?.tipo==='admin';
-      const c = document.getElementById('usuariosList');
-      c.innerHTML = arr.map(u=>{
-        const canEdit = currentUser?.tipo==='admin' || (currentUser?.login!==u.login && u.login!=='ADMIN');
+      
+      let usuarios = [...database.usuarios];
+      
+      if (search) {
+        usuarios = usuarios.filter(u => 
+          (u.nome || '').toLowerCase().includes(search) || 
+          (u.login || '').toLowerCase().includes(search)
+        );
+      }
+      
+      if (tipo) {
+        usuarios = usuarios.filter(u => u.tipo === tipo);
+      }
+      
+      if (status) {
+        usuarios = usuarios.filter(u => u.status === status);
+      }
+      
+      const canDelete = currentUser?.tipo === 'admin';
+      const container = document.getElementById('usuariosList');
+      
+      container.innerHTML = usuarios.map(usuario => {
+        const canEdit = currentUser?.tipo === 'admin' || 
+          (currentUser?.login !== usuario.login && usuario.login !== 'ADMIN');
+        
         return `
           <tr>
-            <td class="px-6 py-3">${u.nome}</td>
-            <td class="px-6 py-3">${u.login}</td>
-            <td class="px-6 py-3">${u.tipo}</td>
-            <td class="px-6 py-3">${u.turma||'-'}</td>
-            <td class="px-6 py-3">${u.livrosLidos||0}</td>
+            <td class="px-6 py-3">${usuario.nome}</td>
+            <td class="px-6 py-3">${usuario.login}</td>
+            <td class="px-6 py-3">${usuario.tipo}</td>
+            <td class="px-6 py-3">${usuario.turma || '-'}</td>
+            <td class="px-6 py-3">${usuario.livrosLidos || 0}</td>
             <td class="px-6 py-3">
-              <span class="px-2 py-1 rounded-full text-xs font-semibold ${u.status==='ativo'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${u.status}</span>
+              <span class="px-2 py-1 rounded-full text-xs font-semibold ${
+                usuario.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              }">
+                ${usuario.status}
+              </span>
             </td>
             <td class="px-6 py-3 text-sm">
-              ${canEdit?`<button onclick="editUsuario(${u.id})" class="text-orange-700 hover:underline">✏️</button>`:''}
-              ${u.login!=='ADMIN'?`<button onclick="toggleUsuarioStatus(${u.id})" class="ml-2 ${u.status==='ativo'?'text-red-700':'text-green-700'} hover:underline">${u.status==='ativo'?'🚫':'✅'}</button>`:''}
-              ${canDelete && u.login!=='ADMIN'?`<button onclick="deleteUsuario(${u.id})" class="ml-2 text-red-700 hover:underline">🗑️</button>`:''}
+              ${canEdit ? `<button onclick="editUsuario(${usuario.id})" class="text-orange-700 hover:underline">✏️</button>` : ''}
+              ${usuario.login !== 'ADMIN' ? `
+                <button onclick="toggleUsuarioStatus(${usuario.id})" class="ml-2 ${
+                  usuario.status === 'ativo' ? 'text-red-700' : 'text-green-700'
+                } hover:underline">
+                  ${usuario.status === 'ativo' ? '🚫' : '✅'}
+                </button>
+              ` : ''}
+              ${canDelete && usuario.login !== 'ADMIN' ? `
+                <button onclick="deleteUsuario(${usuario.id})" class="ml-2 text-red-700 hover:underline">🗑️</button>
+              ` : ''}
             </td>
           </tr>
         `;
       }).join('');
     }
 
-    function handleAddUser(e){
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const login = (fd.get('login')||'').trim();
-      if (database.usuarios.some(u => (u.login||'').toLowerCase() === login.toLowerCase())){ alert('Este login já está em uso.'); return; }
-      const novo = { id: database.nextId.usuarios++, nome: fd.get('nome'), login, senha: fd.get('senha'), tipo: fd.get('tipo'), turma: fd.get('turma')||'', status:'ativo', livrosLidos:0 };
-      database.usuarios.push(novo); saveDatabase();
-      closeModal('addUserModal'); e.target.reset(); loadUsuarios(); updateDashboard();
-      alert('Usuário adicionado!');
-    }
-
-    function editUsuario(id){
-      const u = database.usuarios.find(x=>x.id===id); if (!u) return;
-      document.getElementById('editUserId').value = u.id;
-      document.getElementById('editUserNome').value = u.nome;
-      document.getElementById('editUserLogin').value = u.login;
-      document.getElementById('editUserSenha').value = '';
-      document.getElementById('editUserTipo').value = u.tipo;
-      document.getElementById('editUserTurma').value = u.turma||'';
-      const turmaField = document.getElementById('editTurmaField');
-      if (u.tipo==='aluno'){ turmaField.classList.remove('hidden'); turmaField.querySelector('select').required=true; } else { turmaField.classList.add('hidden'); turmaField.querySelector('select').required=false; }
-      showModal('editUserModal');
-    }
-
-    function handleEditUser(e){
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const id = parseInt(fd.get('id'));
-      const u = database.usuarios.find(x=>x.id===id); if (!u) return;
-      const novoLogin = (fd.get('login')||'').trim();
-      if (database.usuarios.some(x=>x.id!==id && (x.login||'').toLowerCase()===novoLogin.toLowerCase())) { alert('Este login já está em uso.'); return; }
-      u.nome = fd.get('nome'); u.login = novoLogin; u.tipo = fd.get('tipo'); u.turma = fd.get('turma')||'';
-      const ns = (fd.get('senha')||'').trim(); if (ns) u.senha = ns;
-      saveDatabase(); closeModal('editUserModal'); loadUsuarios(); updateDashboard();
-      alert('Usuário atualizado!');
-    }
-
-    function toggleTurmaField(sel){
-      const tf = document.getElementById('turmaField');
-      if (sel.value==='aluno'){ tf.classList.remove('hidden'); tf.querySelector('select').required=true; } else { tf.classList.add('hidden'); tf.querySelector('select').required=false; }
-    }
-
-    function toggleEditTurmaField(sel){
-      const tf = document.getElementById('editTurmaField');
-      if (sel.value==='aluno'){ tf.classList.remove('hidden'); tf.querySelector('select').required=true; } else { tf.classList.add('hidden'); tf.querySelector('select').required=false; }
-    }
-
-    function toggleUsuarioStatus(id){
-      const u = database.usuarios.find(x=>x.id===id); if (!u) return;
-      u.status = u.status==='ativo'?'bloqueado':'ativo';
-      saveDatabase(); loadUsuarios(); updateDashboard();
-    }
-
-    function deleteUsuario(id){
-      if (currentUser?.tipo!=='admin'){ alert('Somente admin pode excluir.'); return; }
-      const u = database.usuarios.find(x=>x.id===id); if (!u || u.login==='ADMIN') { alert('Não é possível excluir este usuário.'); return; }
-      if (!confirm(`Excluir o usuário "${u.nome}"?`)) return;
-      const i = database.usuarios.findIndex(x=>x.id===id);
-      database.usuarios.splice(i,1); saveDatabase(); loadUsuarios(); updateDashboard();
-    }
-
-    // Limpar biblioteca
-    function showClearLibraryModal(){
-      document.getElementById('statLivros').textContent = database.livros.length;
-      document.getElementById('statEmpAtivos').textContent = database.emprestimos.filter(e=>e.status==='ativo').length;
-      showModal('clearLibraryModal');
-    }
-
-    function handleClearLibrary(e){
-      e.preventDefault();
-      const pwd = document.getElementById('adminPasswordConfirm').value;
-      if (pwd !== currentUser?.senha){ alert('Senha incorreta.'); return; }
-      if (!document.getElementById('confirmClear').checked){ alert('Confirme o entendimento da ação.'); return; }
-      if (!confirm('Confirma limpar toda a biblioteca?')) return;
-
-      const liv = database.livros.length;
-      const emp = database.emprestimos.filter(e=>e.status==='ativo').length;
-      const aval = database.livros.reduce((t,l)=>t+(l.avaliacoes?.length||0),0);
-
-      database.livros = []; database.emprestimos = [];
-      database.nextId.livros = 1; database.nextId.emprestimos = 1;
-      database.usuarios.forEach(u=>{ if (u.tipo==='aluno') u.livrosLidos = 0; });
+    function handleAddUser(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const login = (formData.get('login') || '').trim();
+      
+      if (database.usuarios.some(u => (u.login || '').toLowerCase() === login.toLowerCase())) {
+        alert('Este login já está em uso.');
+        return;
+      }
+      
+      const novoUsuario = {
+        id: database.nextId.usuarios++,
+        nome: formData.get('nome'),
+        login,
+        senha: formData.get('senha'),
+        tipo: formData.get('tipo'),
+        turma: formData.get('turma') || '',
+        status: 'ativo',
+        livrosLidos: 0
+      };
+      
+      database.usuarios.push(novoUsuario);
       saveDatabase();
-      closeModal('clearLibraryModal');
-      loadLivros(); loadEmprestimos(); loadDevolucoesPendentes(); updateDashboard();
-      document.getElementById('clearLibraryForm').reset();
-      alert(`Biblioteca limpa!\nLivros: ${liv}\nEmpréstimos ativos: ${emp}\nAvaliações: ${aval}`);
+      
+      closeModal('addUserModal');
+      event.target.reset();
+      loadUsuarios();
+      updateDashboard();
+      
+      alert('Usuário adicionado com sucesso!');
     }
 
-    // Detalhes do livro
-    function showDetalhesLivro(id){
-      const l = database.livros.find(x=>x.id===id); if (!l) return;
-      const media = l.avaliacoes.length ? (l.avaliacoes.reduce((s,x)=>s+x.nota,0)/l.avaliacoes.length).toFixed(1) : 0;
-      const jaAvaliou = l.avaliacoes.some(av => av.alunoId === currentUser?.id);
-      const c = `
-        <div class="flex gap-4">
-          <div class="w-28 h-40 rounded bg-gradient-to-b from-orange-400 to-orange-600 flex items-center justify-center overflow-hidden flex-shrink-0">
-            ${l.foto?`<img src="${l.foto}" alt="${l.titulo}" class="w-full h-full object-cover" onerror="this.style.display='none'">`:'<span class="text-4xl text-white">📖</span>'}
-          </div>
-          <div class="flex-1">
-            <div class="text-xl font-bold">${l.titulo}</div>
-            <div class="text-gray-700">Por: ${l.autor}</div>
-            ${l.editora?`<div class="text-gray-600">Editora: ${l.editora}</div>`:''}
-            ${(l.categoria||l.subcategoria)?`<div class="text-gray-600">${l.categoria||''} ${l.subcategoria?`• ${l.subcategoria}`:''}</div>`:''}
-            ${l.localizacao?`<div class="text-gray-600">📍 ${l.localizacao}</div>`:''}
-            <div class="mt-2 text-sm flex gap-4">
-              <span>📚 ${l.disponivel}/${l.quantidade}</span>
-              <span>⭐ ${media} (${l.avaliacoes.length})</span>
-            </div>
-          </div>
-        </div>
-        ${l.descricao?`<div class="bg-gray-50 p-3 rounded">${l.descricao}</div>`:''}
-        ${l.avaliacoes.length?`
-          <div class="bg-gray-50 p-3 rounded">
-            <div class="font-semibold mb-2">Avaliações</div>
-            <div class="space-y-2 max-h-56 overflow-y-auto">
-              ${l.avaliacoes.map(av=>`
-                <div class="bg-white border rounded p-2">
-                  <div class="flex items-center justify-between">
-                    <div class="font-medium">${av.alunoNome}</div>
-                    <div class="text-yellow-500">${'⭐'.repeat(av.nota)}<span class="text-gray-300">${'⭐'.repeat(5-av.nota)}</span></div>
-                  </div>
-                  ${av.comentario?`<div class="text-sm text-gray-700 mt-1">"${av.comentario}"</div>`:''}
-                  <div class="text-xs text-gray-500 mt-1">${formatDate(av.data)}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `:`
-          <div class="bg-gray-50 p-3 rounded text-sm text-gray-600">Ainda sem avaliações.</div>
-        `}
-      `;
-      document.getElementById('detalhesLivroContent').innerHTML = c;
-      const btn = document.getElementById('avaliarLivroBtn');
-      if (currentUser?.tipo==='aluno' && !jaAvaliou){ btn.classList.remove('hidden'); btn.dataset.livroId = id; } else { btn.classList.add('hidden'); }
-      showModal('detalhesLivroModal');
+    function editUsuario(id) {
+      // Implementar edição de usuário
+      alert('Funcionalidade de edição em desenvolvimento');
     }
 
-    function avaliarLivroFromDetalhes(){
-      const id = parseInt(document.getElementById('avaliarLivroBtn').dataset.livroId);
-      closeModal('detalhesLivroModal');
-      showAvaliacaoLivroModal(id);
+    function toggleTurmaField(select) {
+      const turmaField = document.getElementById('turmaField');
+      if (select.value === 'aluno') {
+        turmaField.classList.remove('hidden');
+        turmaField.querySelector('select').required = true;
+      } else {
+        turmaField.classList.add('hidden');
+        turmaField.querySelector('select').required = false;
+      }
     }
 
-    function showAvaliacaoModal(empId){
-      const e = database.emprestimos.find(x=>x.id===empId);
-      const l = database.livros.find(x=>x.id===e.livroId);
-      document.getElementById('livroAvaliacaoInfo').innerHTML = `<div class="font-medium">${l.titulo}</div><div class="text-sm text-gray-600">${l.autor}</div>`;
-      const f = document.getElementById('avaliacaoForm');
-      f.dataset.emprestimoId = empId; f.dataset.livroId = l.id;
-      showModal('avaliacaoModal');
+    function toggleUsuarioStatus(id) {
+      const usuario = database.usuarios.find(u => u.id === id);
+      if (!usuario) return;
+      
+      usuario.status = usuario.status === 'ativo' ? 'bloqueado' : 'ativo';
+      saveDatabase();
+      loadUsuarios();
+      updateDashboard();
     }
 
-    function showAvaliacaoLivroModal(livroId){
-      const l = database.livros.find(x=>x.id===livroId); if (!l) return;
-      if (l.avaliacoes.some(av=>av.alunoId===currentUser?.id)){ alert('Você já avaliou este livro.'); return; }
-      document.getElementById('livroAvaliacaoInfo').innerHTML = `<div class="font-medium">${l.titulo}</div><div class="text-sm text-gray-600">${l.autor}</div>`;
-      const f = document.getElementById('avaliacaoForm'); f.dataset.emprestimoId=''; f.dataset.livroId = l.id;
-      showModal('avaliacaoModal');
+    function deleteUsuario(id) {
+      if (!confirm('Excluir este usuário?')) return;
+      
+      const index = database.usuarios.findIndex(u => u.id === id);
+      if (index >= 0) {
+        database.usuarios.splice(index, 1);
+        saveDatabase();
+        loadUsuarios();
+        updateDashboard();
+      }
     }
 
-    function handleAvaliacao(e){
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const livroId = parseInt(e.target.dataset.livroId);
-      const nota = parseInt(fd.get('avaliacao'));
-      const comentario = fd.get('comentario');
-      if (!nota){ alert('Selecione uma avaliação.'); return; }
-      const l = database.livros.find(x=>x.id===livroId);
-      l.avaliacoes.push({ id: Date.now(), alunoId: currentUser.id, alunoNome: currentUser.nome, nota, comentario, data: new Date().toISOString().split('T')[0] });
-      saveDatabase(); closeModal('avaliacaoModal'); e.target.reset();
-      document.querySelectorAll('.star-btn').forEach(s=>{ s.classList.add('text-gray-300'); s.classList.remove('text-yellow-400'); });
-      loadLivros(); alert('Avaliação enviada!');
-    }
-
-    function showZoomFoto(id, src){
-      const l = database.livros.find(x=>x.id===id); if (!l || !src) return;
-      const img = document.getElementById('zoomFotoImg'); img.src = src; img.alt = l.titulo;
-      showModal('zoomFotoModal');
-    }
-    function closeZoomFoto(){ closeModal('zoomFotoModal'); }
-
-    // Trocar senha (admin)
-    function showTrocarSenhaModal(){ document.getElementById('trocarSenhaForm').reset(); showModal('trocarSenhaModal'); }
-    function handleTrocarSenha(e){
-      e.preventDefault();
-      const sa = document.getElementById('senhaAtual').value;
-      const ns = document.getElementById('novaSenha').value;
-      const cs = document.getElementById('confirmarNovaSenha').value;
-      if (sa !== currentUser?.senha){ alert('Senha atual incorreta.'); return; }
-      if (ns.length<4){ alert('Nova senha deve ter ao menos 4 caracteres.'); return; }
-      if (ns !== cs){ alert('As senhas não coincidem.'); return; }
-      if (ns === sa){ alert('Nova senha deve ser diferente da atual.'); return; }
-      const u = database.usuarios.find(x=>x.id===currentUser.id);
-      if (!u){ alert('Usuário não encontrado.'); return; }
-      u.senha = ns; currentUser.senha = ns; saveDatabase();
-      closeModal('trocarSenhaModal');
-      alert('Senha alterada com sucesso! Guarde-a em local seguro.');
-    }
-
-    // Importações
-    function importBooks(){
-      const text = document.getElementById('importBooksText').value.trim();
-      if (!text) return;
-      const lines = text.split('\n').filter(Boolean);
-      let imported = 0, skipped = 0;
-      lines.forEach(line=>{
-        const p = line.split('|').map(x=>x.trim());
-        if (p.length>=2){
-          const titulo = p[0], autor = p[1], codigo = p[2]||'', categoria=p[3]||'', local=p[5]||'', qtd=parseInt(p[6]||p[4]||'1');
-          if (verificarLivroDuplicado(titulo, autor, codigo)) { skipped++; return; }
-          database.livros.push({
-            id: database.nextId.livros++, titulo, autor, editora:'', categoria, subcategoria:'', quantidade:qtd, disponivel:qtd, descricao:'', foto:'', codigoBarra:codigo, localizacao:local, avaliacoes:[]
-          });
-          imported++;
-        }
-      });
-      saveDatabase(); closeModal('importBooksModal'); loadLivros(); updateDashboard();
-      alert(`Importação concluída!\nNovos: ${imported}\nIgnorados (duplicados): ${skipped}`);
-      document.getElementById('importBooksText').value='';
-    }
-
-    function importUsers(){
+    function importUsers() {
       const text = document.getElementById('importUsersText').value.trim();
-      if (!text) return;
-      const lines = text.split('\n').filter(Boolean);
-      let imported = 0, skipped = 0;
-      lines.forEach(line=>{
-        const p = line.split('|').map(x=>x.trim());
-        if (p.length>=4){
-          const nome=p[0], login=p[1], senha=p[2], tipo=p[3], turma=p[4]||'';
-          if (database.usuarios.some(u=>(u.login||'').toLowerCase()===login.toLowerCase())) { skipped++; return; }
-          database.usuarios.push({ id: database.nextId.usuarios++, nome, login, senha, tipo, turma, status:'ativo', livrosLidos:0 });
-          imported++;
+      if (!text) {
+        alert('Digite os dados dos usuários para importar.');
+        return;
+      }
+      
+      const lines = text.split('\n').filter(line => line.trim());
+      let imported = 0;
+      let errors = [];
+      
+      lines.forEach((line, index) => {
+        const parts = line.split('|').map(p => p.trim());
+        
+        if (parts.length < 4) {
+          errors.push(`Linha ${index + 1}: Formato inválido`);
+          return;
         }
+        
+        const [nome, login, senha, tipo, turma = ''] = parts;
+        
+        if (!nome || !login || !senha || !tipo) {
+          errors.push(`Linha ${index + 1}: Campos obrigatórios em falta`);
+          return;
+        }
+        
+        if (database.usuarios.some(u => (u.login || '').toLowerCase() === login.toLowerCase())) {
+          errors.push(`Linha ${index + 1}: Login já existe`);
+          return;
+        }
+        
+        database.usuarios.push({
+          id: database.nextId.usuarios++,
+          nome,
+          login,
+          senha,
+          tipo,
+          turma,
+          status: 'ativo',
+          livrosLidos: 0
+        });
+        
+        imported++;
       });
-      saveDatabase(); closeModal('importUsersModal'); loadUsuarios(); updateDashboard();
-      alert(`Usuários importados: ${imported}\nIgnorados (login existente): ${skipped}`);
-      document.getElementById('importUsersText').value='';
+      
+      if (imported > 0) {
+        saveDatabase();
+        loadUsuarios();
+        updateDashboard();
+      }
+      
+      closeModal('importUsersModal');
+      document.getElementById('importUsersText').value = '';
+      
+      let message = `${imported} usuário(s) importado(s) com sucesso!`;
+      if (errors.length > 0) {
+        message += `\n\nErros:\n${errors.join('\n')}`;
+      }
+      
+      alert(message);
     }
 
-    // Eventos
-    function init(){
-      bootstrapDatabase();
+    // ===== FUNCIONALIDADES ADMIN =====
+    function exportarBackup() {
+      const data = JSON.stringify(database, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `biblion-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      
+      URL.revokeObjectURL(url);
+    }
 
-      // Login events
-      document.getElementById('loginForm').addEventListener('submit', handleLogin);
-      document.getElementById('togglePwd').addEventListener('click', ()=>{
-        const i = document.getElementById('loginPassword'); const btn = document.getElementById('togglePwd');
-        if (i.type==='password'){ i.type='text'; btn.textContent='Ocultar'; } else { i.type='password'; btn.textContent='Mostrar'; }
+    function copiarBackup() {
+      const data = JSON.stringify(database, null, 2);
+      navigator.clipboard.writeText(data).then(() => {
+        alert('Dados copiados para a área de transferência!');
+      }).catch(() => {
+        alert('Erro ao copiar dados.');
       });
+    }
 
+    function restaurarBackup() {
+      const file = document.getElementById('backupFile').files[0];
+      const text = document.getElementById('backupText').value.trim();
+      
+      if (!file && !text) {
+        alert('Selecione um arquivo ou cole os dados do backup.');
+        return;
+      }
+      
+      if (!confirm('ATENÇÃO: Isso substituirá TODOS os dados atuais. Continuar?')) {
+        return;
+      }
+      
+      const processBackup = (data) => {
+        try {
+          const parsed = JSON.parse(data);
+          
+          if (!parsed.usuarios || !parsed.livros || !parsed.emprestimos) {
+            throw new Error('Formato de backup inválido');
+          }
+          
+          database = parsed;
+          saveDatabase();
+          
+          alert('Backup restaurado com sucesso!');
+          closeModal('backupModal');
+          updateDashboard();
+          
+        } catch (error) {
+          alert('Erro ao restaurar backup: ' + error.message);
+        }
+      };
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => processBackup(e.target.result);
+        reader.readAsText(file);
+      } else {
+        processBackup(text);
+      }
+    }
+
+    // ===== EVENT LISTENERS =====
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeDatabase();
+      
+      // Login
+      document.getElementById('loginForm').addEventListener('submit', handleLogin);
+      
+      // Toggle senha
+      document.getElementById('togglePwd').addEventListener('click', function() {
+        const input = document.getElementById('loginPassword');
+        const btn = this;
+        
+        if (input.type === 'password') {
+          input.type = 'text';
+          btn.textContent = 'Ocultar';
+        } else {
+          input.type = 'password';
+          btn.textContent = 'Mostrar';
+        }
+      });
+      
       // Forms
       document.getElementById('addBookForm').addEventListener('submit', handleAddBook);
       document.getElementById('editBookForm').addEventListener('submit', handleEditBook);
-      document.getElementById('addEmprestimoForm').addEventListener('submit', handleAddEmprestimo);
-      document.getElementById('clearLibraryForm').addEventListener('submit', handleClearLibrary);
-      document.getElementById('avaliacaoForm').addEventListener('submit', handleAvaliacao);
       document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
-      document.getElementById('editUserForm').addEventListener('submit', handleEditUser);
-      document.getElementById('trocarSenhaForm').addEventListener('submit', handleTrocarSenha);
-
+      document.getElementById('addEmprestimoForm').addEventListener('submit', handleAddEmprestimo);
+      
+      // Busca de livros para empréstimo
+      document.getElementById('searchLivroEmprestimo').addEventListener('input', searchLivrosEmprestimo);
+      
       // Filtros
       document.getElementById('searchLivros').addEventListener('input', loadLivros);
       document.getElementById('filterCategoria').addEventListener('change', loadLivros);
       document.getElementById('filterAutor').addEventListener('change', loadLivros);
       document.getElementById('filterDisponibilidade').addEventListener('change', loadLivros);
-
+      
       document.getElementById('searchEmprestimos').addEventListener('input', loadEmprestimos);
       document.getElementById('filterDataInicio').addEventListener('change', loadEmprestimos);
       document.getElementById('filterDataFim').addEventListener('change', loadEmprestimos);
       document.getElementById('filterTurma').addEventListener('change', loadEmprestimos);
-
-      document.getElementById('searchLivroEmprestimo').addEventListener('input', searchLivrosEmprestimo);
-
-      // Estrelas avaliação
-      document.querySelectorAll('.star-btn').forEach(btn=>{
-        btn.addEventListener('click', function(){
-          const rating = parseInt(this.dataset.rating);
-          document.getElementById('avaliacaoValue').value = rating;
-          document.querySelectorAll('.star-btn').forEach((s,idx)=>{
-            if (idx < rating){ s.classList.remove('text-gray-300'); s.classList.add('text-yellow-400'); }
-            else { s.classList.add('text-gray-300'); s.classList.remove('text-yellow-400'); }
-          });
-        });
+      
+      document.getElementById('searchUsuarios').addEventListener('input', loadUsuarios);
+      document.getElementById('filterTipoUsuario').addEventListener('change', loadUsuarios);
+      document.getElementById('filterStatusUsuario').addEventListener('change', loadUsuarios);
+      
+      // Botões do header
+      document.getElementById('trocarSenhaBtn').addEventListener('click', () => showModal('trocarSenhaModal'));
+      document.getElementById('backupBtn').addEventListener('click', () => {
+        // Atualizar estatísticas do backup
+        document.getElementById('backupStatsLivros').textContent = database.livros.length;
+        document.getElementById('backupStatsUsuarios').textContent = database.usuarios.length;
+        document.getElementById('backupStatsEmprestimos').textContent = database.emprestimos.length;
+        document.getElementById('backupStatsAvaliacoes').textContent = 
+          database.livros.reduce((total, livro) => total + (livro.avaliacoes?.length || 0), 0);
+        
+        showModal('backupModal');
       });
-    }
+      
+      // Limpar biblioteca
+      document.getElementById('clearLibraryForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const senha = document.getElementById('adminPasswordConfirm').value;
+        const confirmado = document.getElementById('confirmClear').checked;
+        
+        if (!confirmado) {
+          alert('Você deve confirmar que entende o risco.');
+          return;
+        }
+        
+        if (senha !== currentUser.senha) {
+          alert('Senha incorreta.');
+          return;
+        }
+        
+        database.livros = [];
+        database.emprestimos = [];
+        database.nextId.livros = 1;
+        database.nextId.emprestimos = 1;
+        
+        saveDatabase();
+        closeModal('clearLibraryModal');
+        
+        alert('Biblioteca limpa com sucesso!');
+        updateDashboard();
+        loadLivros();
+      });
+      
+      // Atualizar estatísticas ao abrir modal de limpar
+      document.getElementById('clearLibraryBtn').addEventListener('click', function() {
+        document.getElementById('statLivros').textContent = database.livros.length;
+        document.getElementById('statEmpAtivos').textContent = 
+          database.emprestimos.filter(e => e.status === 'ativo').length;
+      });
 
-    document.addEventListener('DOMContentLoaded', init);
+      // Trocar senha
+      document.getElementById('trocarSenhaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const senhaAtual = document.getElementById('senhaAtual').value;
+        const novaSenha = document.getElementById('novaSenha').value;
+        const confirmarSenha = document.getElementById('confirmarNovaSenha').value;
+        
+        if (senhaAtual !== currentUser.senha) {
+          alert('Senha atual incorreta.');
+          return;
+        }
+        
+        if (novaSenha !== confirmarSenha) {
+          alert('As senhas não coincidem.');
+          return;
+        }
+        
+        if (novaSenha.length < 4) {
+          alert('A nova senha deve ter pelo menos 4 caracteres.');
+          return;
+        }
+        
+        // Atualizar senha no banco
+        const userIndex = database.usuarios.findIndex(u => u.id === currentUser.id);
+        if (userIndex >= 0) {
+          database.usuarios[userIndex].senha = novaSenha;
+          currentUser.senha = novaSenha;
+          saveDatabase();
+          
+          closeModal('trocarSenhaModal');
+          e.target.reset();
+          alert('Senha alterada com sucesso!');
+        }
+      });
+    });
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987ece7d2489f08e',t:'MTc1OTM1MTU1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9886fddbf1ceca1c',t:'MTc1OTQzNzM4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
