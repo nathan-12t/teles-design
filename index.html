@@ -40,12 +40,12 @@
 
       <form id="loginForm" class="space-y-5">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Usuário</label>
+          <label for="loginUser" class="block text-sm font-medium text-gray-700 mb-1">Usuário</label>
           <input id="loginUser" type="text" placeholder="Seu usuário" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 outline-none" required />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+          <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
           <div class="relative">
             <input id="loginPassword" type="password" placeholder="Sua senha" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 outline-none pr-12" required />
             <button type="button" id="togglePwd" class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 text-sm text-orange-700 bg-orange-100 rounded hover:bg-orange-200">Mostrar</button>
@@ -73,7 +73,6 @@
         <div class="flex items-center gap-2">
           <span id="userWelcome" class="text-sm opacity-90"></span>
           <button id="trocarSenhaBtn" class="bg-amber-700 hover:bg-amber-800 px-3 py-2 rounded-lg hidden">🔑 Trocar Senha</button>
-          <button id="backupBtn" class="bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded-lg hidden">💾 Backup</button>
           <button onclick="logout()" class="bg-red-700 hover:bg-red-800 px-3 py-2 rounded-lg">Sair</button>
         </div>
       </div>
@@ -88,6 +87,8 @@
           <button onclick="showTab('emprestimos')" class="nav-btn py-4 border-b-2 border-transparent hover:border-amber-700">📋 Empréstimos</button>
           <button onclick="showTab('devolucoes')" class="nav-btn py-4 border-b-2 border-transparent hover:border-amber-700">⏰ Devoluções</button>
           <button id="usuariosTabBtn" onclick="showTab('usuarios')" class="nav-btn py-4 border-b-2 border-transparent hover:border-amber-700">👥 Usuários</button>
+          <button onclick="showTab('backup')" class="nav-btn py-4 border-b-2 border-transparent hover:border-amber-700">💾 Backup</button>
+          <button onclick="showTab('qrcode')" class="nav-btn py-4 border-b-2 border-transparent hover:border-amber-700">📱 QR Code</button>
         </div>
       </div>
     </nav>
@@ -164,7 +165,7 @@
             <button onclick="clearLivrosFilters()" class="text-sm text-orange-600 underline">Limpar</button>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <input id="searchLivros" type="text" placeholder="Título, autor, categoria..." class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/>
+            <input id="searchLivros" type="text" placeholder="Título, autor, código de barras..." class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/>
             <select id="filterCategoria" class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"><option value="">Todas as categorias</option></select>
             <select id="filterAutor" class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"><option value="">Todos os autores</option></select>
             <select id="filterDisponibilidade" class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700">
@@ -288,6 +289,232 @@
           </div>
         </div>
       </section>
+
+      <!-- QR CODE -->
+      <section id="qrcodeTab" class="tab-content hidden">
+        <h2 class="text-2xl font-bold text-white mb-6">📱 QR Code - Teles Design</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- QR Code Display -->
+          <div class="bg-white rounded-xl p-8 text-center">
+            <h3 class="text-xl font-bold text-blue-600 mb-6">🎨 Acesse o Teles Design</h3>
+            
+            <div class="bg-gray-50 border-2 border-gray-200 rounded-xl p-8 mb-6">
+              <div id="qrCodeContainer" class="flex justify-center">
+                <!-- QR Code será gerado aqui -->
+              </div>
+            </div>
+            
+            <div class="space-y-3">
+              <div class="text-sm text-gray-600">
+                <strong>Link:</strong> 
+                <a href="https://nathan-12t.github.io/teles-design/" target="_blank" rel="noopener noreferrer" 
+                   class="text-blue-600 hover:underline break-all">
+                  https://nathan-12t.github.io/teles-design/
+                </a>
+              </div>
+              
+              <div class="flex gap-2 justify-center flex-wrap">
+                <button onclick="window.open('https://nathan-12t.github.io/teles-design/', '_blank', 'noopener,noreferrer')" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm">
+                  🌐 Abrir Site
+                </button>
+                <button onclick="copiarLinkTeles()" 
+                        class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm">
+                  📋 Link Simples
+                </button>
+                <button onclick="copiarLinkComBackup()" 
+                        class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm">
+                  💾 Link + Backup
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informações -->
+          <div class="bg-white rounded-xl p-6">
+            <h3 class="text-xl font-bold text-purple-600 mb-4">ℹ️ Sobre o Teles Design</h3>
+            
+            <div class="space-y-4 text-sm text-gray-700">
+              <div class="bg-purple-50 border border-purple-200 p-4 rounded-lg">
+                <h4 class="font-semibold text-purple-800 mb-2">🎨 Portfolio Criativo</h4>
+                <p>Conheça os trabalhos e projetos desenvolvidos por Nathannael Teles, incluindo designs, sistemas e soluções digitais inovadoras.</p>
+              </div>
+              
+              <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-2">💼 Serviços Profissionais</h4>
+                <p>Desenvolvimento de sistemas, design gráfico, criação de sites e soluções personalizadas para empresas e instituições.</p>
+              </div>
+              
+              <div class="bg-green-50 border border-green-200 p-4 rounded-lg">
+                <h4 class="font-semibold text-green-800 mb-2">📱 Como usar o QR Code</h4>
+                <ol class="list-decimal list-inside space-y-1">
+                  <li>Abra a câmera do seu celular</li>
+                  <li>Aponte para o QR Code acima</li>
+                  <li>Toque na notificação que aparecer</li>
+                  <li>Será redirecionado para o site</li>
+                  <li class="text-green-700 font-medium">💾 Backup será baixado automaticamente!</li>
+                </ol>
+              </div>
+              
+              <div class="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+                <h4 class="font-semibold text-orange-800 mb-2">🔗 Compartilhamento</h4>
+                <p>Use o botão "Copiar Link" para compartilhar o endereço do Teles Design em redes sociais, mensagens ou e-mails.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rodapé da seção -->
+        <div class="mt-8 bg-white rounded-xl p-6 text-center">
+          <div class="text-gray-600 mb-2">
+            <span class="text-2xl">🎨</span>
+          </div>
+          <h4 class="font-bold text-gray-800 mb-1">Teles Design</h4>
+          <p class="text-sm text-gray-600">Criatividade e Inovação em cada projeto</p>
+          <p class="text-xs text-gray-500 mt-2">Desenvolvido por Nathannael Teles</p>
+        </div>
+      </section>
+
+      <!-- BACKUP -->
+      <section id="backupTab" class="tab-content hidden">
+        <h2 class="text-2xl font-bold text-white mb-6">💾 Backup dos Dados</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Estatísticas -->
+          <div class="bg-white rounded-xl p-6">
+            <h3 class="text-xl font-bold text-blue-600 mb-4">📊 Dados Atuais</h3>
+            
+            <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg mb-4">
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div class="flex items-center gap-2">
+                  <span class="text-blue-600">📚</span>
+                  <span><span id="backupStatsLivros">0</span> livros</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-purple-600">👥</span>
+                  <span><span id="backupStatsUsuarios">0</span> usuários</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-green-600">📋</span>
+                  <span><span id="backupStatsEmprestimos">0</span> empréstimos</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-orange-600">📅</span>
+                  <span id="backupStatsData">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fazer Backup -->
+            <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4">
+              <h4 class="font-semibold text-blue-800 mb-2">📤 Exportar Dados</h4>
+              <p class="text-sm text-blue-700 mb-3">Salve todos os dados da biblioteca em um arquivo.</p>
+              <div class="space-y-2">
+                <button onclick="exportarBackup()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">💾 Baixar Backup JSON</button>
+                <button onclick="copiarBackup()" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">📋 Copiar Dados</button>
+              </div>
+            </div>
+
+            <!-- Limpar Sistema -->
+            <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+              <h4 class="font-semibold text-red-800 mb-2">🗑️ Limpar Sistema</h4>
+              <p class="text-sm text-red-700 mb-3">Remove todos os dados (exceto usuário ADMIN).</p>
+              <button onclick="showModal('clearSystemModal')" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">🗑️ Limpar Tudo</button>
+            </div>
+          </div>
+
+          <!-- QR Code do Backup -->
+          <div class="bg-white rounded-xl p-6">
+            <h3 class="text-xl font-bold text-purple-600 mb-4">📱 Compartilhar Backup</h3>
+            
+            <div class="bg-purple-50 border border-purple-200 p-4 rounded-lg mb-4">
+              <h4 class="font-semibold text-purple-800 mb-2">🔗 QR Code dos Dados</h4>
+              <p class="text-sm text-purple-700 mb-3">Gere um QR Code para compartilhar todos os dados da biblioteca.</p>
+              
+              <div class="text-center mb-4">
+                <div id="backupQRContainer" class="bg-gray-50 border-2 border-gray-200 rounded-lg p-4 mb-3">
+                  <div class="text-gray-500 text-sm">Clique em "Gerar QR Code" para criar</div>
+                </div>
+                
+                <div class="space-y-2">
+                  <button onclick="gerarQRCodeBackup()" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm">📱 Gerar QR Code</button>
+                  <button onclick="compartilharLinkBackup()" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm">🔗 Copiar Link</button>
+                </div>
+              </div>
+              
+              <div class="text-xs text-purple-600 bg-purple-100 rounded p-2">
+                <strong>💡 Como funciona:</strong><br>
+                • O QR Code contém todos os dados da biblioteca<br>
+                • Ao escanear, os dados são baixados automaticamente<br>
+                • Perfeito para sincronizar entre dispositivos
+              </div>
+            </div>
+          </div>
+
+          <!-- Restaurar Backup -->
+          <div class="bg-white rounded-xl p-6">
+            <h3 class="text-xl font-bold text-green-600 mb-4">📥 Importar Dados</h3>
+            
+            <div class="bg-green-50 border border-green-200 p-4 rounded-lg">
+              <h4 class="font-semibold text-green-800 mb-2">📥 Restaurar Backup</h4>
+              <p class="text-sm text-green-700 mb-3">Carregue dados de um backup anterior.</p>
+              
+              <div class="space-y-3">
+                <div>
+                  <label for="backupFile" class="block text-sm font-medium mb-1">Arquivo de Backup</label>
+                  <input type="file" id="backupFile" accept=".json,.txt" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 text-sm">
+                </div>
+                
+                <div class="text-sm text-gray-600 text-center">ou</div>
+                
+                <div>
+                  <label for="backupText" class="block text-sm font-medium mb-1">Cole os dados do backup</label>
+                  <textarea id="backupText" rows="6" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 text-sm" placeholder="Cole aqui o conteúdo do backup..."></textarea>
+                </div>
+                
+                <button onclick="restaurarBackup()" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">📥 Restaurar Backup</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instruções -->
+        <div class="mt-8 bg-white rounded-xl p-6">
+          <h3 class="font-semibold text-gray-800 mb-4">📖 Como usar o Backup</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-700">
+            <div>
+              <h4 class="font-medium text-gray-800 mb-2">💾 Para fazer backup:</h4>
+              <ol class="space-y-1 list-decimal list-inside">
+                <li>Clique em "Baixar Backup JSON"</li>
+                <li>Salve o arquivo em local seguro</li>
+                <li>Ou use "Copiar Dados" para colar em outro lugar</li>
+                <li>Guarde o backup regularmente</li>
+              </ol>
+            </div>
+            <div>
+              <h4 class="font-medium text-gray-800 mb-2">📥 Para restaurar backup:</h4>
+              <ol class="space-y-1 list-decimal list-inside">
+                <li>Selecione o arquivo de backup</li>
+                <li>Ou cole o conteúdo na área de texto</li>
+                <li>Clique em "Restaurar Backup"</li>
+                <li>Confirme a operação</li>
+                <li>O sistema será recarregado</li>
+              </ol>
+            </div>
+          </div>
+          
+          <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div class="flex items-start gap-2">
+              <span class="text-yellow-600">⚠️</span>
+              <div class="text-sm text-yellow-800">
+                <strong>Importante:</strong> Sempre faça backup antes de grandes alterações. 
+                A restauração substitui todos os dados atuais pelos dados do backup.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Footer -->
@@ -306,23 +533,20 @@
       </div>
       <form id="addBookForm" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div><label class="block text-sm font-medium mb-1">Título *</label><input name="titulo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
-          <div><label class="block text-sm font-medium mb-1">Código de Barra</label><input name="codigoBarra" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
-          <div><label class="block text-sm font-medium mb-1">Autor *</label><input name="autor" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
-          <div><label class="block text-sm font-medium mb-1">Editora</label><input name="editora" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
-          <div><label class="block text-sm font-medium mb-1">Categoria</label><input name="categoria" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
-          <div><label class="block text-sm font-medium mb-1">Subcategoria</label><input name="subcategoria" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
-          <div><label class="block text-sm font-medium mb-1">Quantidade *</label><input type="number" min="1" name="quantidade" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
-          <div><label class="block text-sm font-medium mb-1">Localização</label><input name="localizacao" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookTitulo" class="block text-sm font-medium mb-1">Título *</label><input id="addBookTitulo" name="titulo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookCodigo" class="block text-sm font-medium mb-1">Código de Barra</label><input id="addBookCodigo" name="codigoBarra" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookAutor" class="block text-sm font-medium mb-1">Autor *</label><input id="addBookAutor" name="autor" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookEditora" class="block text-sm font-medium mb-1">Editora</label><input id="addBookEditora" name="editora" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookCategoria" class="block text-sm font-medium mb-1">Categoria</label><input id="addBookCategoria" name="categoria" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookSubcategoria" class="block text-sm font-medium mb-1">Subcategoria</label><input id="addBookSubcategoria" name="subcategoria" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookQuantidade" class="block text-sm font-medium mb-1">Quantidade *</label><input id="addBookQuantidade" type="number" min="1" name="quantidade" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookLocalizacao" class="block text-sm font-medium mb-1">Localização</label><input id="addBookLocalizacao" name="localizacao" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
         </div>
-        <div><label class="block text-sm font-medium mb-1">Descrição</label><textarea name="descricao" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"></textarea></div>
+        <div><label for="addBookDescricao" class="block text-sm font-medium mb-1">Descrição</label><textarea id="addBookDescricao" name="descricao" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"></textarea></div>
         <div>
-          <label class="block text-sm font-medium mb-1">Foto do Livro</label>
-          <div class="space-y-2">
-            <input type="file" name="fotoFile" accept="image/png,image/jpg,image/jpeg" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
-            <p class="text-xs text-gray-500">ou</p>
-            <input type="url" name="foto" placeholder="URL da imagem" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
-          </div>
+          <label for="addBookFoto" class="block text-sm font-medium mb-1">URL da Foto do Livro</label>
+          <input type="url" id="addBookFoto" name="foto" placeholder="https://exemplo.com/imagem.jpg" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
+          <p class="text-xs text-gray-500">Cole o link direto da imagem (JPG, PNG, etc.)</p>
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" onclick="closeModal('addBookModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
@@ -361,14 +585,14 @@
       </div>
       <form id="addEmprestimoForm" class="space-y-4">
         <div id="alunoSelectDiv">
-          <label class="block text-sm font-medium mb-1">Aluno *</label>
-          <select name="aluno" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
+          <label for="emprestimoAluno" class="block text-sm font-medium mb-1">Aluno *</label>
+          <select id="emprestimoAluno" name="aluno" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
             <option value="">Selecione o aluno...</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Buscar Livro *</label>
-          <input id="searchLivroEmprestimo" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="Digite o título..."/>
+          <label for="searchLivroEmprestimo" class="block text-sm font-medium mb-1">Buscar Livro *</label>
+          <input id="searchLivroEmprestimo" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="Digite título, código ou autor..."/>
           <div id="livroSuggestions" class="hidden mt-2 border rounded-lg max-h-40 overflow-y-auto"></div>
         </div>
         <div id="livroSelecionado" class="hidden">
@@ -377,8 +601,8 @@
           <input type="hidden" name="livro" id="livroId"/>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Devolução *</label>
-          <input type="date" name="dataDevolucao" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/>
+          <label for="emprestimoDataDevolucao" class="block text-sm font-medium mb-1">Devolução *</label>
+          <input type="date" id="emprestimoDataDevolucao" name="dataDevolucao" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/>
         </div>
         <div class="flex justify-end gap-2">
           <button type="button" onclick="closeModal('addEmprestimoModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
@@ -398,23 +622,20 @@
       <form id="editBookForm" class="space-y-4">
         <input type="hidden" name="id" id="editBookId"/>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div><label class="block text-sm font-medium mb-1">Título *</label><input id="editBookTitulo" name="titulo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-          <div><label class="block text-sm font-medium mb-1">Código de Barra</label><input id="editBookCodigo" name="codigoBarra" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-          <div><label class="block text-sm font-medium mb-1">Autor *</label><input id="editBookAutor" name="autor" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-          <div><label class="block text-sm font-medium mb-1">Editora</label><input id="editBookEditora" name="editora" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-          <div><label class="block text-sm font-medium mb-1">Categoria</label><input id="editBookCategoria" name="categoria" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-          <div><label class="block text-sm font-medium mb-1">Subcategoria</label><input id="editBookSubcategoria" name="subcategoria" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-          <div><label class="block text-sm font-medium mb-1">Quantidade *</label><input type="number" id="editBookQuantidade" name="quantidade" min="1" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-          <div><label class="block text-sm font-medium mb-1">Localização</label><input id="editBookLocalizacao" name="localizacao" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+          <div><label for="editBookTitulo" class="block text-sm font-medium mb-1">Título *</label><input id="editBookTitulo" name="titulo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+          <div><label for="editBookCodigo" class="block text-sm font-medium mb-1">Código de Barra</label><input id="editBookCodigo" name="codigoBarra" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+          <div><label for="editBookAutor" class="block text-sm font-medium mb-1">Autor *</label><input id="editBookAutor" name="autor" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+          <div><label for="editBookEditora" class="block text-sm font-medium mb-1">Editora</label><input id="editBookEditora" name="editora" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+          <div><label for="editBookCategoria" class="block text-sm font-medium mb-1">Categoria</label><input id="editBookCategoria" name="categoria" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+          <div><label for="editBookSubcategoria" class="block text-sm font-medium mb-1">Subcategoria</label><input id="editBookSubcategoria" name="subcategoria" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+          <div><label for="editBookQuantidade" class="block text-sm font-medium mb-1">Quantidade *</label><input type="number" id="editBookQuantidade" name="quantidade" min="1" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+          <div><label for="editBookLocalizacao" class="block text-sm font-medium mb-1">Localização</label><input id="editBookLocalizacao" name="localizacao" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
         </div>
-        <div><label class="block text-sm font-medium mb-1">Descrição</label><textarea id="editBookDescricao" name="descricao" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"></textarea></div>
+        <div><label for="editBookDescricao" class="block text-sm font-medium mb-1">Descrição</label><textarea id="editBookDescricao" name="descricao" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"></textarea></div>
         <div>
-          <label class="block text-sm font-medium mb-1">Foto do Livro</label>
-          <div class="space-y-2">
-            <input type="file" name="fotoFile" accept="image/png,image/jpg,image/jpeg" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
-            <p class="text-xs text-gray-500">ou</p>
-            <input type="url" id="editBookFoto" name="foto" placeholder="URL da imagem" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
-          </div>
+          <label for="editBookFoto" class="block text-sm font-medium mb-1">URL da Foto do Livro</label>
+          <input type="url" id="editBookFoto" name="foto" placeholder="https://exemplo.com/imagem.jpg" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
+          <p class="text-xs text-gray-500">Cole o link direto da imagem (JPG, PNG, etc.)</p>
         </div>
         <div class="flex justify-end gap-2">
           <button type="button" onclick="closeModal('editBookModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
@@ -432,12 +653,12 @@
         <button onclick="closeModal('addUserModal')" class="text-gray-500 hover:text-gray-700">✕</button>
       </div>
       <form id="addUserForm" class="space-y-4">
-        <div><label class="block text-sm font-medium mb-1">Nome *</label><input name="nome" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-        <div><label class="block text-sm font-medium mb-1">Login *</label><input name="login" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
-        <div><label class="block text-sm font-medium mb-1">Senha *</label><input type="password" name="senha" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+        <div><label for="addUserNome" class="block text-sm font-medium mb-1">Nome *</label><input id="addUserNome" name="nome" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+        <div><label for="addUserLogin" class="block text-sm font-medium mb-1">Login *</label><input id="addUserLogin" name="login" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
+        <div><label for="addUserSenha" class="block text-sm font-medium mb-1">Senha *</label><input id="addUserSenha" type="password" name="senha" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
         <div>
-          <label class="block text-sm font-medium mb-1">Tipo de Usuário *</label>
-          <select name="tipo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" onchange="toggleTurmaField(this)">
+          <label for="addUserTipo" class="block text-sm font-medium mb-1">Tipo de Usuário *</label>
+          <select id="addUserTipo" name="tipo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" onchange="toggleTurmaField(this)">
             <option value="">Selecione...</option>
             <option value="aluno">Aluno</option>
             <option value="professor">Professor</option>
@@ -448,8 +669,8 @@
           </select>
         </div>
         <div id="turmaField" class="hidden">
-          <label class="block text-sm font-medium mb-1">Turma</label>
-          <select name="turma" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
+          <label for="addUserTurma" class="block text-sm font-medium mb-1">Turma</label>
+          <select id="addUserTurma" name="turma" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
             <option value="">Selecione a turma...</option>
             <optgroup label="Ensino Fundamental (EF)">
               <option value="1-A EF">1º A EF</option><option value="1-B EF">1º B EF</option><option value="1-C EF">1º C EF</option><option value="1-D EF">1º D EF</option><option value="1-E EF">1º E EF</option>
@@ -495,33 +716,33 @@
     </div>
   </div>
 
-  <!-- Limpar Biblioteca -->
-  <div id="clearLibraryModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+  <!-- Limpar Sistema -->
+  <div id="clearSystemModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl p-6 w-full max-w-md">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xl font-bold text-red-600">⚠️ Limpar Biblioteca</h3>
-        <button onclick="closeModal('clearLibraryModal')" class="text-gray-500 hover:text-gray-700">✕</button>
+        <h3 class="text-xl font-bold text-red-600">⚠️ Limpar Sistema</h3>
+        <button onclick="closeModal('clearSystemModal')" class="text-gray-500 hover:text-gray-700">✕</button>
       </div>
       <div class="space-y-4">
         <div class="bg-red-50 border border-red-200 p-3 rounded text-sm text-red-800">
-          Esta ação apagará TODOS os livros e empréstimos. Irreversível.
+          Esta ação apagará TODOS os dados (exceto usuário ADMIN). Irreversível.
         </div>
         <div class="bg-yellow-50 border border-yellow-200 p-3 rounded text-sm text-yellow-800">
           <div><b>Dados a remover:</b></div>
           <div>• <span id="statLivros">0</span> livros</div>
-          <div>• <span id="statEmpAtivos">0</span> empréstimos ativos</div>
-          <div>• Todas as avaliações</div>
+          <div>• <span id="statEmpAtivos">0</span> empréstimos</div>
+          <div>• <span id="statUsuarios">0</span> usuários (exceto ADMIN)</div>
         </div>
-        <form id="clearLibraryForm" class="space-y-3">
+        <form id="clearSystemForm" class="space-y-3">
           <div>
-            <label class="block text-sm font-medium mb-1">Senha do administrador</label>
+            <label for="adminPasswordConfirm" class="block text-sm font-medium mb-1">Senha do administrador</label>
             <input id="adminPasswordConfirm" type="password" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-500"/>
           </div>
           <label class="flex items-center gap-2 text-sm">
             <input id="confirmClear" type="checkbox" class="rounded"/> Confirmo que entendo o risco
           </label>
           <div class="flex justify-end gap-2">
-            <button type="button" onclick="closeModal('clearLibraryModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
+            <button type="button" onclick="closeModal('clearSystemModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
             <button class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">LIMPAR</button>
           </div>
         </form>
@@ -538,78 +759,15 @@
       </div>
       <form id="trocarSenhaForm" class="space-y-4">
         <div class="bg-blue-50 border border-blue-200 p-3 rounded text-sm text-blue-800">Confirme sua senha atual e defina uma nova.</div>
-        <div><label class="block text-sm font-medium mb-1">Senha Atual *</label><input id="senhaAtual" type="password" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"/></div>
-        <div><label class="block text-sm font-medium mb-1">Nova Senha *</label><input id="novaSenha" type="password" minlength="4" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"/></div>
-        <div><label class="block text-sm font-medium mb-1">Confirmar Nova Senha *</label><input id="confirmarNovaSenha" type="password" minlength="4" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"/></div>
+        <div><label for="senhaAtual" class="block text-sm font-medium mb-1">Senha Atual *</label><input id="senhaAtual" type="password" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"/></div>
+        <div><label for="novaSenha" class="block text-sm font-medium mb-1">Nova Senha *</label><input id="novaSenha" type="password" minlength="4" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"/></div>
+        <div><label for="confirmarNovaSenha" class="block text-sm font-medium mb-1">Confirmar Nova Senha *</label><input id="confirmarNovaSenha" type="password" minlength="4" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"/></div>
         <div class="text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 rounded p-2">Anote sua nova senha em local seguro.</div>
         <div class="flex justify-end gap-2">
           <button type="button" onclick="closeModal('trocarSenhaModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
           <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Alterar</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Backup Modal -->
-  <div id="backupModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-bold text-blue-600">💾 Backup e Restauração</h3>
-        <button onclick="closeModal('backupModal')" class="text-gray-500 hover:text-gray-700">✕</button>
-      </div>
-      
-      <div class="space-y-6">
-        <!-- Fazer Backup -->
-        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-          <h4 class="font-semibold text-blue-800 mb-2">📤 Fazer Backup</h4>
-          <p class="text-sm text-blue-700 mb-3">Salve todos os dados da biblioteca em um arquivo.</p>
-          <div class="flex gap-2">
-            <button onclick="exportarBackup()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">💾 Baixar Backup</button>
-            <button onclick="copiarBackup()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">📋 Copiar Dados</button>
-          </div>
-        </div>
-
-        <!-- Restaurar Backup -->
-        <div class="bg-green-50 border border-green-200 p-4 rounded-lg">
-          <h4 class="font-semibold text-green-800 mb-2">📥 Restaurar Backup</h4>
-          <p class="text-sm text-green-700 mb-3">Carregue dados de um backup anterior.</p>
-          
-          <div class="space-y-3">
-            <div>
-              <label class="block text-sm font-medium mb-1">Arquivo de Backup</label>
-              <input type="file" id="backupFile" accept=".json,.txt" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500">
-            </div>
-            
-            <div class="text-sm text-gray-600">ou</div>
-            
-            <div>
-              <label class="block text-sm font-medium mb-1">Cole os dados do backup</label>
-              <textarea id="backupText" rows="6" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" placeholder="Cole aqui o conteúdo do backup..."></textarea>
-            </div>
-            
-            <div class="bg-yellow-50 border border-yellow-200 p-3 rounded text-sm text-yellow-800">
-              ⚠️ <strong>Atenção:</strong> Restaurar um backup substituirá TODOS os dados atuais.
-            </div>
-            
-            <button onclick="restaurarBackup()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">📥 Restaurar Backup</button>
-          </div>
-        </div>
-
-        <!-- Estatísticas -->
-        <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg">
-          <h4 class="font-semibold text-gray-800 mb-2">📊 Dados Atuais</h4>
-          <div class="grid grid-cols-2 gap-4 text-sm">
-            <div>📚 <span id="backupStatsLivros">0</span> livros</div>
-            <div>👥 <span id="backupStatsUsuarios">0</span> usuários</div>
-            <div>📋 <span id="backupStatsEmprestimos">0</span> empréstimos</div>
-            <div>⭐ <span id="backupStatsAvaliacoes">0</span> avaliações</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-4">
-        <button onclick="closeModal('backupModal')" class="px-4 py-2 border rounded-lg">Fechar</button>
-      </div>
     </div>
   </div>
 
@@ -661,7 +819,12 @@
         }
       ],
       emprestimos: [],
-      nextId: { usuarios: 2, livros: 3, emprestimos: 1 }
+      nextId: { usuarios: 2, livros: 3, emprestimos: 1 },
+      metadata: {
+        version: '2.0',
+        lastUpdate: new Date().toISOString(),
+        systemName: 'BibliOn - Sistema de Biblioteca'
+      }
     };
 
     // ===== VARIÁVEIS GLOBAIS =====
@@ -678,6 +841,13 @@
     }
 
     function saveDatabase() {
+      if (!database.metadata) {
+        database.metadata = {};
+      }
+      database.metadata.lastUpdate = new Date().toISOString();
+      database.metadata.version = '2.0';
+      database.metadata.systemName = 'BibliOn - Sistema de Biblioteca';
+      
       localStorage.setItem('bibliOnDatabase', JSON.stringify(database));
     }
 
@@ -695,6 +865,139 @@
 
     function formatDate(dateStr) {
       return new Date(dateStr).toLocaleDateString('pt-BR');
+    }
+
+    // ===== BACKUP E RESTAURAÇÃO =====
+    function exportarBackup() {
+      const data = JSON.stringify(database, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `biblion-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      
+      URL.revokeObjectURL(url);
+      alert('💾 Backup baixado com sucesso!');
+    }
+
+    function copiarBackup() {
+      const data = JSON.stringify(database, null, 2);
+      
+      navigator.clipboard.writeText(data).then(() => {
+        alert('📋 Dados copiados para a área de transferência!\n\nVocê pode colar em outro dispositivo para sincronizar.');
+      }).catch(() => {
+        // Fallback
+        const textArea = document.createElement('textarea');
+        textArea.value = data;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('📋 Dados copiados para a área de transferência!');
+      });
+    }
+
+    function restaurarBackup() {
+      const file = document.getElementById('backupFile').files[0];
+      const text = document.getElementById('backupText').value.trim();
+      
+      if (!file && !text) {
+        alert('❌ Selecione um arquivo ou cole os dados do backup.');
+        return;
+      }
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          processBackupData(e.target.result);
+        };
+        reader.readAsText(file);
+      } else {
+        processBackupData(text);
+      }
+    }
+
+    function processBackupData(data) {
+      try {
+        const backupData = JSON.parse(data);
+        
+        // Validação básica
+        if (!backupData.usuarios || !backupData.livros || !backupData.emprestimos) {
+          throw new Error('Formato de backup inválido');
+        }
+        
+        if (!confirm(`📥 Confirmar restauração do backup?\n\n📊 Dados a importar:\n• ${backupData.livros.length} livros\n• ${backupData.usuarios.length} usuários\n• ${backupData.emprestimos.length} empréstimos\n\n⚠️ Os dados atuais serão substituídos!`)) {
+          return;
+        }
+        
+        // Restaura os dados
+        database = backupData;
+        
+        // Garante estrutura mínima
+        if (!database.nextId) {
+          database.nextId = {
+            usuarios: Math.max(...database.usuarios.map(u => u.id), 0) + 1,
+            livros: Math.max(...database.livros.map(l => l.id), 0) + 1,
+            emprestimos: Math.max(...database.emprestimos.map(e => e.id), 0) + 1
+          };
+        }
+        
+        saveDatabase();
+        
+        // Limpa formulário
+        document.getElementById('backupFile').value = '';
+        document.getElementById('backupText').value = '';
+        
+        alert('✅ Backup restaurado com sucesso!\n\nA página será recarregada para aplicar as mudanças.');
+        location.reload();
+        
+      } catch (error) {
+        alert('❌ Erro ao restaurar backup: ' + error.message);
+      }
+    }
+
+    function updateBackupStats() {
+      document.getElementById('backupStatsLivros').textContent = database.livros.length;
+      document.getElementById('backupStatsUsuarios').textContent = database.usuarios.length;
+      document.getElementById('backupStatsEmprestimos').textContent = database.emprestimos.length;
+      document.getElementById('backupStatsData').textContent = new Date().toLocaleDateString('pt-BR');
+    }
+
+    function handleClearSystem(event) {
+      event.preventDefault();
+      
+      const senha = document.getElementById('adminPasswordConfirm').value;
+      const confirmado = document.getElementById('confirmClear').checked;
+      
+      if (!confirmado) {
+        alert('❌ Você deve confirmar que entende o risco.');
+        return;
+      }
+      
+      // Verifica senha do admin
+      const admin = database.usuarios.find(u => u.login === 'ADMIN');
+      if (!admin || admin.senha !== senha) {
+        alert('❌ Senha do administrador incorreta.');
+        return;
+      }
+      
+      if (!confirm('⚠️ ÚLTIMA CONFIRMAÇÃO\n\nTodos os dados serão apagados permanentemente!\n\nDeseja continuar?')) {
+        return;
+      }
+      
+      // Limpa tudo exceto o admin
+      database.livros = [];
+      database.emprestimos = [];
+      database.usuarios = database.usuarios.filter(u => u.login === 'ADMIN');
+      database.nextId = { usuarios: 2, livros: 1, emprestimos: 1 };
+      
+      saveDatabase();
+      closeModal('clearSystemModal');
+      
+      alert('✅ Sistema limpo com sucesso!\n\nApenas o usuário ADMIN foi mantido.');
+      location.reload();
     }
 
     // ===== INICIALIZAÇÃO DO BANCO =====
@@ -717,12 +1020,18 @@
         } else {
           database = parsed;
           
-          // Garantir estrutura
           if (!database.nextId) {
             database.nextId = { usuarios: 2, livros: 3, emprestimos: 1 };
           }
           
-          // Garantir admin
+          if (!database.metadata) {
+            database.metadata = {
+              version: '2.0',
+              lastUpdate: new Date().toISOString(),
+              systemName: 'BibliOn - Sistema de Biblioteca'
+            };
+          }
+          
           const hasAdmin = database.usuarios.some(u => 
             u && u.login && u.login.toUpperCase() === 'ADMIN'
           );
@@ -765,7 +1074,6 @@
         return;
       }
       
-      // Buscar usuário
       const user = database.usuarios.find(u => {
         if (!u || !u.login || !u.senha) return false;
         
@@ -778,10 +1086,7 @@
       
       if (!user) {
         console.log('❌ Login falhou');
-        alert('Usuário ou senha incorretos, ou usuário bloqueado.\n\n' +
-              '🔑 Credenciais padrão:\n' +
-              'Usuário: ADMIN\n' +
-              'Senha: VANIA25');
+        alert('Usuário ou senha incorretos, ou usuário bloqueado.');
         return;
       }
       
@@ -809,19 +1114,15 @@
       const isAdmin = currentUser.tipo === 'admin';
       const isStudent = currentUser.tipo === 'aluno';
       
-      // Resetar visibilidade
       document.getElementById('usuariosTabBtn').classList.remove('hidden');
       document.getElementById('usuariosCard').classList.remove('hidden');
       document.getElementById('addEmprestimoBtn').classList.remove('hidden');
       document.getElementById('meusEmprestimos').classList.add('hidden');
       document.getElementById('livrosActions').classList.remove('hidden');
       
-      // Configurar para admin
       document.getElementById('clearLibraryBtn').classList.toggle('hidden', !isAdmin);
       document.getElementById('trocarSenhaBtn').classList.toggle('hidden', !isAdmin);
-      document.getElementById('backupBtn').classList.toggle('hidden', !isAdmin);
       
-      // Configurar para aluno
       if (isStudent) {
         document.getElementById('usuariosTabBtn').classList.add('hidden');
         document.getElementById('usuariosCard').classList.add('hidden');
@@ -842,15 +1143,12 @@
 
     // ===== SISTEMA DE ABAS =====
     function showTab(tabName) {
-      // Esconder todas as abas
       document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.add('hidden');
       });
       
-      // Mostrar aba selecionada
       document.getElementById(tabName + 'Tab').classList.remove('hidden');
       
-      // Atualizar navegação
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active');
       });
@@ -861,7 +1159,6 @@
         }
       });
       
-      // Carregar dados específicos da aba
       switch (tabName) {
         case 'inicio':
           updateDashboard();
@@ -879,6 +1176,12 @@
           break;
         case 'usuarios':
           loadUsuarios();
+          break;
+        case 'backup':
+          updateBackupStats();
+          break;
+        case 'qrcode':
+          generateQRCode();
           break;
       }
     }
@@ -914,7 +1217,6 @@
       
       let livros = [...database.livros];
       
-      // Ordenar por avaliação, disponibilidade e ID
       livros.sort((a, b) => {
         const mediaA = a.avaliacoes.length ? 
           a.avaliacoes.reduce((sum, av) => sum + av.nota, 0) / a.avaliacoes.length : 0;
@@ -990,7 +1292,6 @@
       
       let livros = [...database.livros];
       
-      // Aplicar filtros
       if (search) {
         livros = livros.filter(livro =>
           (livro.titulo || '').toLowerCase().includes(search) ||
@@ -998,7 +1299,8 @@
           (livro.descricao || '').toLowerCase().includes(search) ||
           (livro.categoria || '').toLowerCase().includes(search) ||
           (livro.subcategoria || '').toLowerCase().includes(search) ||
-          (livro.editora || '').toLowerCase().includes(search)
+          (livro.editora || '').toLowerCase().includes(search) ||
+          (livro.codigoBarra || '').toLowerCase().includes(search)
         );
       }
       
@@ -1035,6 +1337,7 @@
                 <div class="font-bold text-lg truncate">${livro.titulo}</div>
                 <div class="text-gray-600">${livro.autor}</div>
                 <div class="text-sm text-gray-500">${livro.editora || 'Editora não informada'}</div>
+                ${livro.codigoBarra ? `<div class="text-xs text-blue-600 font-mono">📊 ${livro.codigoBarra}</div>` : ''}
                 <div class="mt-2 text-sm flex gap-4">
                   <span>📚 ${livro.disponivel}/${livro.quantidade}</span>
                   <span>⭐ ${media} (${livro.avaliacoes.length})</span>
@@ -1079,15 +1382,6 @@
     }
 
     // ===== CRUD LIVROS =====
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = err => reject(err);
-        reader.readAsDataURL(file);
-      });
-    }
-
     function verificarLivroDuplicado(titulo, autor, codigo, ignoreId = null) {
       const tituloNorm = (titulo || '').toLowerCase().trim();
       const autorNorm = (autor || '').toLowerCase().trim();
@@ -1105,7 +1399,7 @@
       });
     }
 
-    async function handleAddBook(event) {
+    function handleAddBook(event) {
       event.preventDefault();
       
       const formData = new FormData(event.target);
@@ -1118,17 +1412,7 @@
         return;
       }
       
-      let foto = formData.get('foto') || '';
-      const fotoFile = formData.get('fotoFile');
-      
-      if (fotoFile && fotoFile.size > 0) {
-        try {
-          foto = await fileToBase64(fotoFile);
-        } catch (error) {
-          console.error('Erro ao processar imagem:', error);
-        }
-      }
-      
+      const foto = formData.get('foto') || '';
       const quantidade = parseInt(formData.get('quantidade'));
       
       const novoLivro = {
@@ -1158,7 +1442,7 @@
       alert('Livro adicionado com sucesso!');
     }
 
-    async function handleEditBook(event) {
+    function handleEditBook(event) {
       event.preventDefault();
       
       const formData = new FormData(event.target);
@@ -1179,18 +1463,8 @@
       const novaQuantidade = parseInt(formData.get('quantidade'));
       const diferenca = novaQuantidade - livro.quantidade;
       
-      let foto = formData.get('foto') || livro.foto;
-      const fotoFile = formData.get('fotoFile');
+      const foto = formData.get('foto') || livro.foto;
       
-      if (fotoFile && fotoFile.size > 0) {
-        try {
-          foto = await fileToBase64(fotoFile);
-        } catch (error) {
-          console.error('Erro ao processar imagem:', error);
-        }
-      }
-      
-      // Atualizar livro
       livro.titulo = titulo;
       livro.autor = autor;
       livro.editora = formData.get('editora') || '';
@@ -1313,7 +1587,7 @@
 
     // ===== EMPRÉSTIMOS =====
     function showAddEmprestimoModal() {
-      const alunoSelect = document.querySelector('#addEmprestimoModal select[name="aluno"]');
+      const alunoSelect = document.getElementById('emprestimoAluno');
       const alunos = database.usuarios.filter(u => u.tipo === 'aluno' && u.status === 'ativo');
       
       alunoSelect.innerHTML = '<option value="">Selecione o aluno...</option>' + 
@@ -1329,7 +1603,7 @@
       }
       
       const hoje = new Date();
-      const dateInput = document.querySelector('#addEmprestimoModal input[name="dataDevolucao"]');
+      const dateInput = document.getElementById('emprestimoDataDevolucao');
       dateInput.min = hoje.toISOString().split('T')[0];
       
       showModal('addEmprestimoModal');
@@ -1345,7 +1619,11 @@
       }
       
       const livros = database.livros.filter(l => 
-        l.disponivel > 0 && (l.titulo || '').toLowerCase().includes(query)
+        l.disponivel > 0 && (
+          (l.titulo || '').toLowerCase().includes(query) ||
+          (l.codigoBarra || '').toLowerCase().includes(query) ||
+          (l.autor || '').toLowerCase().includes(query)
+        )
       );
       
       if (!livros.length) {
@@ -1358,6 +1636,7 @@
         <div class="p-3 hover:bg-gray-50 cursor-pointer border-b" onclick="selectLivroEmprestimo(${livro.id})">
           <div class="font-medium">${livro.titulo}</div>
           <div class="text-sm text-gray-600">${livro.autor}</div>
+          ${livro.codigoBarra ? `<div class="text-xs text-blue-600 font-mono">📊 ${livro.codigoBarra}</div>` : ''}
           <div class="text-xs text-green-600">${livro.disponivel} disponível(is)</div>
         </div>
       `).join('');
@@ -1700,7 +1979,6 @@
     }
 
     function editUsuario(id) {
-      // Implementar edição de usuário
       alert('Funcionalidade de edição em desenvolvimento');
     }
 
@@ -1799,73 +2077,313 @@
       alert(message);
     }
 
-    // ===== FUNCIONALIDADES ADMIN =====
-    function exportarBackup() {
-      const data = JSON.stringify(database, null, 2);
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
+    // ===== QR CODE =====
+    function generateQRCode() {
+      const container = document.getElementById('qrCodeContainer');
       
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `biblion-backup-${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
+      // Limpa container
+      container.innerHTML = '';
       
-      URL.revokeObjectURL(url);
+      try {
+        // Tenta gerar URL com backup
+        const urlComBackup = gerarLinkComBackup();
+        
+        // Verifica se a URL não é muito longa para QR Code
+        if (urlComBackup.length > 2000) {
+          throw new Error('URL muito longa');
+        }
+        
+        const qrSize = 200;
+        const qrCode = createQRCodeSVG(urlComBackup, qrSize);
+        container.appendChild(qrCode);
+        
+        // Adiciona indicador de backup
+        const indicator = document.createElement('div');
+        indicator.className = 'mt-2 text-xs text-green-600 font-semibold';
+        indicator.innerHTML = '✨ QR Code com Backup Automático';
+        container.appendChild(indicator);
+        
+      } catch (error) {
+        // Fallback para URL normal
+        const url = 'https://nathan-12t.github.io/teles-design/';
+        const qrSize = 200;
+        const qrCode = createQRCodeSVG(url, qrSize);
+        container.appendChild(qrCode);
+        
+        // Adiciona indicador de fallback
+        const indicator = document.createElement('div');
+        indicator.className = 'mt-2 text-xs text-orange-600';
+        indicator.innerHTML = '⚠️ QR Code simples (dados muito grandes para backup automático)';
+        container.appendChild(indicator);
+      }
     }
 
-    function copiarBackup() {
-      const data = JSON.stringify(database, null, 2);
-      navigator.clipboard.writeText(data).then(() => {
-        alert('Dados copiados para a área de transferência!');
+    function createQRCodeSVG(text, size) {
+      // Cria um QR Code simples usando API externa
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&format=svg&bgcolor=ffffff&color=000000&qzone=2&margin=10`;
+      
+      const img = document.createElement('img');
+      img.src = qrApiUrl;
+      img.alt = 'QR Code para Teles Design';
+      img.className = 'mx-auto rounded-lg shadow-md';
+      img.style.width = size + 'px';
+      img.style.height = size + 'px';
+      
+      // Fallback caso a API não funcione
+      img.onerror = function() {
+        this.style.display = 'none';
+        const fallback = document.createElement('div');
+        fallback.className = 'bg-gray-200 rounded-lg flex items-center justify-center text-gray-600';
+        fallback.style.width = size + 'px';
+        fallback.style.height = size + 'px';
+        fallback.innerHTML = `
+          <div class="text-center">
+            <div class="text-4xl mb-2">📱</div>
+            <div class="text-sm">QR Code</div>
+            <div class="text-xs">Teles Design</div>
+          </div>
+        `;
+        this.parentNode.appendChild(fallback);
+      };
+      
+      return img;
+    }
+
+    function copiarLinkTeles() {
+      const link = 'https://nathan-12t.github.io/teles-design/';
+      
+      navigator.clipboard.writeText(link).then(() => {
+        alert('🔗 Link copiado!\n\nVocê pode colar em qualquer lugar para compartilhar o Teles Design.');
       }).catch(() => {
-        alert('Erro ao copiar dados.');
+        // Fallback para navegadores mais antigos
+        const textArea = document.createElement('textarea');
+        textArea.value = link;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('🔗 Link copiado para a área de transferência!');
       });
     }
 
-    function restaurarBackup() {
-      const file = document.getElementById('backupFile').files[0];
-      const text = document.getElementById('backupText').value.trim();
-      
-      if (!file && !text) {
-        alert('Selecione um arquivo ou cole os dados do backup.');
-        return;
-      }
-      
-      if (!confirm('ATENÇÃO: Isso substituirá TODOS os dados atuais. Continuar?')) {
-        return;
-      }
-      
-      const processBackup = (data) => {
-        try {
-          const parsed = JSON.parse(data);
-          
-          if (!parsed.usuarios || !parsed.livros || !parsed.emprestimos) {
-            throw new Error('Formato de backup inválido');
-          }
-          
-          database = parsed;
-          saveDatabase();
-          
-          alert('Backup restaurado com sucesso!');
-          closeModal('backupModal');
-          updateDashboard();
-          
-        } catch (error) {
-          alert('Erro ao restaurar backup: ' + error.message);
+    function gerarLinkComBackup() {
+      // Cria um backup dos dados atuais
+      const backupData = {
+        ...database,
+        metadata: {
+          ...database.metadata,
+          exportedAt: new Date().toISOString(),
+          exportedBy: currentUser?.nome || 'Sistema',
+          systemName: 'BibliOn - Sistema de Biblioteca'
         }
       };
       
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => processBackup(e.target.result);
-        reader.readAsText(file);
-      } else {
-        processBackup(text);
+      // Converte para JSON compactado
+      const jsonData = JSON.stringify(backupData);
+      
+      // Codifica em Base64 para incluir na URL
+      const encodedData = btoa(encodeURIComponent(jsonData));
+      
+      // Cria URL com os dados
+      const baseUrl = 'https://nathan-12t.github.io/teles-design/';
+      const linkComBackup = `${baseUrl}?backup=${encodedData}`;
+      
+      return linkComBackup;
+    }
+
+    function copiarLinkComBackup() {
+      try {
+        const linkComBackup = gerarLinkComBackup();
+        
+        navigator.clipboard.writeText(linkComBackup).then(() => {
+          alert('🔗 Link especial copiado!\n\n✨ Este link contém um backup automático dos dados da biblioteca.\n\n📱 Quando alguém acessar pelo QR Code ou link, o backup será baixado automaticamente no dispositivo.');
+        }).catch(() => {
+          // Fallback
+          const textArea = document.createElement('textarea');
+          textArea.value = linkComBackup;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('🔗 Link especial copiado com backup automático!');
+        });
+      } catch (error) {
+        alert('❌ Erro ao gerar link com backup. Os dados podem ser muito grandes.');
+        copiarLinkTeles(); // Fallback para link normal
       }
+    }
+
+    // ===== QR CODE DE BACKUP =====
+    function gerarQRCodeBackup() {
+      const container = document.getElementById('backupQRContainer');
+      
+      try {
+        // Cria backup dos dados atuais
+        const backupData = {
+          ...database,
+          metadata: {
+            ...database.metadata,
+            exportedAt: new Date().toISOString(),
+            exportedBy: currentUser?.nome || 'Sistema',
+            systemName: 'BibliOn - Sistema de Biblioteca',
+            backupType: 'QR Code Share'
+          }
+        };
+        
+        // Converte para JSON compactado
+        const jsonData = JSON.stringify(backupData);
+        
+        // Codifica em Base64
+        const encodedData = btoa(encodeURIComponent(jsonData));
+        
+        // Cria URL especial para backup
+        const backupUrl = `https://nathan-12t.github.io/teles-design/?biblion_backup=${encodedData}`;
+        
+        // Verifica se a URL não é muito longa
+        if (backupUrl.length > 2500) {
+          throw new Error('Dados muito grandes para QR Code');
+        }
+        
+        // Gera QR Code
+        const qrSize = 180;
+        const qrCode = createQRCodeSVG(backupUrl, qrSize);
+        
+        container.innerHTML = '';
+        container.appendChild(qrCode);
+        
+        // Adiciona informações do backup
+        const info = document.createElement('div');
+        info.className = 'mt-2 text-xs text-purple-600';
+        info.innerHTML = `
+          <div class="font-semibold">✅ QR Code Gerado!</div>
+          <div>${database.livros.length} livros • ${database.usuarios.length} usuários</div>
+          <div>${database.emprestimos.length} empréstimos</div>
+        `;
+        container.appendChild(info);
+        
+        alert('📱 QR Code do backup gerado com sucesso!\n\n✨ Qualquer pessoa que escanear este código terá acesso a todos os dados da biblioteca.\n\n🔒 Compartilhe apenas com pessoas autorizadas!');
+        
+      } catch (error) {
+        container.innerHTML = `
+          <div class="text-center text-red-600 p-4">
+            <div class="text-2xl mb-2">⚠️</div>
+            <div class="text-sm">Dados muito grandes para QR Code</div>
+            <div class="text-xs mt-1">Use "Copiar Link" como alternativa</div>
+          </div>
+        `;
+        
+        alert('❌ Os dados são muito grandes para gerar um QR Code.\n\nUse a opção "Copiar Link" para compartilhar o backup.');
+      }
+    }
+
+    function compartilharLinkBackup() {
+      try {
+        // Cria backup dos dados atuais
+        const backupData = {
+          ...database,
+          metadata: {
+            ...database.metadata,
+            exportedAt: new Date().toISOString(),
+            exportedBy: currentUser?.nome || 'Sistema',
+            systemName: 'BibliOn - Sistema de Biblioteca',
+            backupType: 'Link Share'
+          }
+        };
+        
+        // Converte para JSON compactado
+        const jsonData = JSON.stringify(backupData);
+        
+        // Codifica em Base64
+        const encodedData = btoa(encodeURIComponent(jsonData));
+        
+        // Cria URL especial para backup
+        const backupUrl = `https://nathan-12t.github.io/teles-design/?biblion_backup=${encodedData}`;
+        
+        // Copia para área de transferência
+        navigator.clipboard.writeText(backupUrl).then(() => {
+          alert('🔗 Link do backup copiado!\n\n✨ Este link contém todos os dados da biblioteca.\n\n📱 Quando alguém acessar, o backup será baixado automaticamente.\n\n🔒 Compartilhe apenas com pessoas autorizadas!');
+        }).catch(() => {
+          // Fallback para navegadores mais antigos
+          const textArea = document.createElement('textarea');
+          textArea.value = backupUrl;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('🔗 Link do backup copiado para a área de transferência!');
+        });
+        
+      } catch (error) {
+        alert('❌ Erro ao gerar link do backup: ' + error.message);
+      }
+    }
+
+    // ===== DETECÇÃO DE BACKUP NA URL =====
+    function detectarBackupNaURL() {
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      // Verifica parâmetro do backup do BibliOn
+      const backupParam = urlParams.get('biblion_backup') || urlParams.get('backup');
+      
+      if (backupParam) {
+        try {
+          // Decodifica os dados do backup
+          const decodedData = decodeURIComponent(atob(backupParam));
+          const backupData = JSON.parse(decodedData);
+          
+          // Valida se é um backup válido
+          if (backupData.usuarios && backupData.livros && backupData.emprestimos) {
+            // Cria o arquivo de backup para download
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            // Cria link de download automático
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `biblion-backup-${new Date().toISOString().split('T')[0]}.json`;
+            
+            // Força o download
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // Limpa a URL
+            URL.revokeObjectURL(url);
+            
+            // Remove o parâmetro da URL sem recarregar a página
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            
+            // Notifica o usuário
+            setTimeout(() => {
+              const exportedBy = backupData.metadata?.exportedBy || 'Sistema';
+              const exportedAt = backupData.metadata?.exportedAt ? 
+                new Date(backupData.metadata.exportedAt).toLocaleString('pt-BR') : 
+                'Data não informada';
+              
+              alert(`📥 Backup do BibliOn baixado automaticamente!\n\n✅ Arquivo salvo na pasta Downloads\n\n📊 Dados do backup:\n• ${backupData.livros.length} livros\n• ${backupData.usuarios.length} usuários\n• ${backupData.emprestimos.length} empréstimos\n\n👤 Exportado por: ${exportedBy}\n📅 Data: ${exportedAt}`);
+            }, 1000);
+            
+            return true;
+          }
+        } catch (error) {
+          console.error('Erro ao processar backup da URL:', error);
+          
+          // Notifica erro ao usuário
+          setTimeout(() => {
+            alert('❌ Erro ao processar backup da URL.\n\nO link pode estar corrompido ou incompleto.');
+          }, 1000);
+        }
+      }
+      
+      return false;
     }
 
     // ===== EVENT LISTENERS =====
     document.addEventListener('DOMContentLoaded', function() {
+      // Verifica se há backup na URL antes de inicializar
+      const temBackup = detectarBackupNaURL();
+      
       initializeDatabase();
       
       // Login
@@ -1888,11 +2406,9 @@
       // Forms
       document.getElementById('addBookForm').addEventListener('submit', handleAddBook);
       document.getElementById('editBookForm').addEventListener('submit', handleEditBook);
-      document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
       document.getElementById('addEmprestimoForm').addEventListener('submit', handleAddEmprestimo);
-      
-      // Busca de livros para empréstimo
-      document.getElementById('searchLivroEmprestimo').addEventListener('input', searchLivrosEmprestimo);
+      document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
+      document.getElementById('clearSystemForm').addEventListener('submit', handleClearSystem);
       
       // Filtros
       document.getElementById('searchLivros').addEventListener('input', loadLivros);
@@ -1909,92 +2425,19 @@
       document.getElementById('filterTipoUsuario').addEventListener('change', loadUsuarios);
       document.getElementById('filterStatusUsuario').addEventListener('change', loadUsuarios);
       
-      // Botões do header
-      document.getElementById('trocarSenhaBtn').addEventListener('click', () => showModal('trocarSenhaModal'));
-      document.getElementById('backupBtn').addEventListener('click', () => {
-        // Atualizar estatísticas do backup
-        document.getElementById('backupStatsLivros').textContent = database.livros.length;
-        document.getElementById('backupStatsUsuarios').textContent = database.usuarios.length;
-        document.getElementById('backupStatsEmprestimos').textContent = database.emprestimos.length;
-        document.getElementById('backupStatsAvaliacoes').textContent = 
-          database.livros.reduce((total, livro) => total + (livro.avaliacoes?.length || 0), 0);
-        
-        showModal('backupModal');
-      });
+      // Busca de livros para empréstimo
+      document.getElementById('searchLivroEmprestimo').addEventListener('input', searchLivrosEmprestimo);
       
-      // Limpar biblioteca
-      document.getElementById('clearLibraryForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const senha = document.getElementById('adminPasswordConfirm').value;
-        const confirmado = document.getElementById('confirmClear').checked;
-        
-        if (!confirmado) {
-          alert('Você deve confirmar que entende o risco.');
-          return;
-        }
-        
-        if (senha !== currentUser.senha) {
-          alert('Senha incorreta.');
-          return;
-        }
-        
-        database.livros = [];
-        database.emprestimos = [];
-        database.nextId.livros = 1;
-        database.nextId.emprestimos = 1;
-        
-        saveDatabase();
-        closeModal('clearLibraryModal');
-        
-        alert('Biblioteca limpa com sucesso!');
-        updateDashboard();
-        loadLivros();
-      });
-      
-      // Atualizar estatísticas ao abrir modal de limpar
-      document.getElementById('clearLibraryBtn').addEventListener('click', function() {
-        document.getElementById('statLivros').textContent = database.livros.length;
-        document.getElementById('statEmpAtivos').textContent = 
-          database.emprestimos.filter(e => e.status === 'ativo').length;
-      });
-
       // Trocar senha
-      document.getElementById('trocarSenhaForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const senhaAtual = document.getElementById('senhaAtual').value;
-        const novaSenha = document.getElementById('novaSenha').value;
-        const confirmarSenha = document.getElementById('confirmarNovaSenha').value;
-        
-        if (senhaAtual !== currentUser.senha) {
-          alert('Senha atual incorreta.');
-          return;
-        }
-        
-        if (novaSenha !== confirmarSenha) {
-          alert('As senhas não coincidem.');
-          return;
-        }
-        
-        if (novaSenha.length < 4) {
-          alert('A nova senha deve ter pelo menos 4 caracteres.');
-          return;
-        }
-        
-        // Atualizar senha no banco
-        const userIndex = database.usuarios.findIndex(u => u.id === currentUser.id);
-        if (userIndex >= 0) {
-          database.usuarios[userIndex].senha = novaSenha;
-          currentUser.senha = novaSenha;
-          saveDatabase();
-          
-          closeModal('trocarSenhaModal');
-          e.target.reset();
-          alert('Senha alterada com sucesso!');
-        }
+      document.getElementById('trocarSenhaBtn').addEventListener('click', () => showModal('trocarSenhaModal'));
+      
+      // Atualizar estatísticas do modal de limpeza
+      document.getElementById('clearSystemModal').addEventListener('click', function() {
+        document.getElementById('statLivros').textContent = database.livros.length;
+        document.getElementById('statEmpAtivos').textContent = database.emprestimos.filter(e => e.status === 'ativo').length;
+        document.getElementById('statUsuarios').textContent = database.usuarios.filter(u => u.login !== 'ADMIN').length;
       });
     });
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9886fddbf1ceca1c',t:'MTc1OTQzNzM4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98fb6b65466f9a86',t:'MTc2MDY1ODIxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
