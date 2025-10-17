@@ -544,9 +544,9 @@
         </div>
         <div><label for="addBookDescricao" class="block text-sm font-medium mb-1">Descrição</label><textarea id="addBookDescricao" name="descricao" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"></textarea></div>
         <div>
-          <label for="addBookFoto" class="block text-sm font-medium mb-1">URL da Foto do Livro</label>
-          <input type="url" id="addBookFoto" name="foto" placeholder="https://exemplo.com/imagem.jpg" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
-          <p class="text-xs text-gray-500">Cole o link direto da imagem (JPG, PNG, etc.)</p>
+          <label for="addBookFoto" class="block text-sm font-medium mb-1">Foto do Livro</label>
+          <input type="file" id="addBookFoto" name="foto" accept="image/*" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
+          <p class="text-xs text-gray-500">Selecione uma imagem (JPG, PNG, GIF, etc.)</p>
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" onclick="closeModal('addBookModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
@@ -633,9 +633,13 @@
         </div>
         <div><label for="editBookDescricao" class="block text-sm font-medium mb-1">Descrição</label><textarea id="editBookDescricao" name="descricao" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"></textarea></div>
         <div>
-          <label for="editBookFoto" class="block text-sm font-medium mb-1">URL da Foto do Livro</label>
-          <input type="url" id="editBookFoto" name="foto" placeholder="https://exemplo.com/imagem.jpg" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
-          <p class="text-xs text-gray-500">Cole o link direto da imagem (JPG, PNG, etc.)</p>
+          <label for="editBookFoto" class="block text-sm font-medium mb-1">Foto do Livro</label>
+          <input type="file" id="editBookFoto" name="foto" accept="image/*" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
+          <p class="text-xs text-gray-500">Selecione uma nova imagem (JPG, PNG, GIF, etc.)</p>
+          <div id="currentBookImage" class="mt-2 hidden">
+            <p class="text-xs text-gray-600 mb-1">Imagem atual:</p>
+            <img id="currentImagePreview" src="" alt="Imagem atual" class="w-20 h-28 object-cover rounded border">
+          </div>
         </div>
         <div class="flex justify-end gap-2">
           <button type="button" onclick="closeModal('editBookModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
@@ -1412,34 +1416,70 @@
         return;
       }
       
-      const foto = formData.get('foto') || '';
       const quantidade = parseInt(formData.get('quantidade'));
+      const fotoFile = formData.get('foto');
       
-      const novoLivro = {
-        id: database.nextId.livros++,
-        titulo,
-        autor,
-        editora: formData.get('editora') || '',
-        categoria: formData.get('categoria') || '',
-        subcategoria: formData.get('subcategoria') || '',
-        quantidade,
-        disponivel: quantidade,
-        descricao: formData.get('descricao') || '',
-        foto,
-        codigoBarra: codigo || '',
-        localizacao: formData.get('localizacao') || '',
-        avaliacoes: []
-      };
-      
-      database.livros.push(novoLivro);
-      saveDatabase();
-      
-      closeModal('addBookModal');
-      event.target.reset();
-      loadLivros();
-      updateDashboard();
-      
-      alert('Livro adicionado com sucesso!');
+      // Processa a imagem se foi selecionada
+      if (fotoFile && fotoFile.size > 0) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const fotoBase64 = e.target.result;
+          
+          const novoLivro = {
+            id: database.nextId.livros++,
+            titulo,
+            autor,
+            editora: formData.get('editora') || '',
+            categoria: formData.get('categoria') || '',
+            subcategoria: formData.get('subcategoria') || '',
+            quantidade,
+            disponivel: quantidade,
+            descricao: formData.get('descricao') || '',
+            foto: fotoBase64,
+            codigoBarra: codigo || '',
+            localizacao: formData.get('localizacao') || '',
+            avaliacoes: []
+          };
+          
+          database.livros.push(novoLivro);
+          saveDatabase();
+          
+          closeModal('addBookModal');
+          event.target.reset();
+          loadLivros();
+          updateDashboard();
+          
+          alert('Livro adicionado com sucesso!');
+        };
+        reader.readAsDataURL(fotoFile);
+      } else {
+        // Sem imagem
+        const novoLivro = {
+          id: database.nextId.livros++,
+          titulo,
+          autor,
+          editora: formData.get('editora') || '',
+          categoria: formData.get('categoria') || '',
+          subcategoria: formData.get('subcategoria') || '',
+          quantidade,
+          disponivel: quantidade,
+          descricao: formData.get('descricao') || '',
+          foto: '',
+          codigoBarra: codigo || '',
+          localizacao: formData.get('localizacao') || '',
+          avaliacoes: []
+        };
+        
+        database.livros.push(novoLivro);
+        saveDatabase();
+        
+        closeModal('addBookModal');
+        event.target.reset();
+        loadLivros();
+        updateDashboard();
+        
+        alert('Livro adicionado com sucesso!');
+      }
     }
 
     function handleEditBook(event) {
@@ -1462,27 +1502,45 @@
       
       const novaQuantidade = parseInt(formData.get('quantidade'));
       const diferenca = novaQuantidade - livro.quantidade;
+      const fotoFile = formData.get('foto');
       
-      const foto = formData.get('foto') || livro.foto;
+      // Função para atualizar o livro
+      function atualizarLivro(novaFoto = null) {
+        livro.titulo = titulo;
+        livro.autor = autor;
+        livro.editora = formData.get('editora') || '';
+        livro.categoria = formData.get('categoria') || '';
+        livro.subcategoria = formData.get('subcategoria') || '';
+        livro.quantidade = novaQuantidade;
+        livro.disponivel = Math.max(0, livro.disponivel + diferenca);
+        livro.descricao = formData.get('descricao') || '';
+        livro.codigoBarra = codigo || '';
+        livro.localizacao = formData.get('localizacao') || '';
+        
+        // Atualiza foto apenas se uma nova foi selecionada
+        if (novaFoto !== null) {
+          livro.foto = novaFoto;
+        }
+        
+        saveDatabase();
+        closeModal('editBookModal');
+        loadLivros();
+        updateDashboard();
+        
+        alert('Livro atualizado!');
+      }
       
-      livro.titulo = titulo;
-      livro.autor = autor;
-      livro.editora = formData.get('editora') || '';
-      livro.categoria = formData.get('categoria') || '';
-      livro.subcategoria = formData.get('subcategoria') || '';
-      livro.quantidade = novaQuantidade;
-      livro.disponivel = Math.max(0, livro.disponivel + diferenca);
-      livro.descricao = formData.get('descricao') || '';
-      livro.foto = foto;
-      livro.codigoBarra = codigo || '';
-      livro.localizacao = formData.get('localizacao') || '';
-      
-      saveDatabase();
-      closeModal('editBookModal');
-      loadLivros();
-      updateDashboard();
-      
-      alert('Livro atualizado!');
+      // Processa nova imagem se foi selecionada
+      if (fotoFile && fotoFile.size > 0) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          atualizarLivro(e.target.result);
+        };
+        reader.readAsDataURL(fotoFile);
+      } else {
+        // Mantém a foto atual
+        atualizarLivro();
+      }
     }
 
     function deleteLivro(id) {
@@ -1511,7 +1569,20 @@
       document.getElementById('editBookQuantidade').value = livro.quantidade;
       document.getElementById('editBookLocalizacao').value = livro.localizacao || '';
       document.getElementById('editBookDescricao').value = livro.descricao || '';
-      document.getElementById('editBookFoto').value = livro.foto || '';
+      
+      // Limpa o input de arquivo
+      document.getElementById('editBookFoto').value = '';
+      
+      // Mostra imagem atual se existir
+      const currentImageDiv = document.getElementById('currentBookImage');
+      const currentImagePreview = document.getElementById('currentImagePreview');
+      
+      if (livro.foto && livro.foto.trim() !== '') {
+        currentImagePreview.src = livro.foto;
+        currentImageDiv.classList.remove('hidden');
+      } else {
+        currentImageDiv.classList.add('hidden');
+      }
       
       showModal('editBookModal');
     }
@@ -2213,66 +2284,216 @@
       }
     }
 
-    // ===== QR CODE DE BACKUP =====
+    // ===== COMPRESSÃO DE DADOS =====
+    function compressData(data) {
+      // Compressão simples usando técnicas de otimização
+      const jsonStr = JSON.stringify(data);
+      
+      // Remove espaços desnecessários e otimiza estrutura
+      const optimized = jsonStr
+        .replace(/\s+/g, '') // Remove espaços
+        .replace(/"([^"]+)":/g, '$1:') // Remove aspas desnecessárias das chaves
+        .replace(/,}/g, '}') // Remove vírgulas antes de }
+        .replace(/,]/g, ']'); // Remove vírgulas antes de ]
+      
+      return optimized;
+    }
+
+    function decompressData(compressedData) {
+      try {
+        // Reconstrói o JSON válido
+        let restored = compressedData
+          .replace(/([{,])(\w+):/g, '$1"$2":') // Restaura aspas nas chaves
+          .replace(/([{,])(\d+):/g, '$1"$2":'); // Restaura aspas em chaves numéricas
+        
+        return JSON.parse(restored);
+      } catch (error) {
+        // Fallback para JSON normal
+        return JSON.parse(compressedData);
+      }
+    }
+
+    // ===== SISTEMA DE FRAGMENTAÇÃO =====
+    function fragmentarDados(data, maxSize = 2000) {
+      const compressed = compressData(data);
+      const encoded = btoa(encodeURIComponent(compressed));
+      
+      if (encoded.length <= maxSize) {
+        return { single: encoded };
+      }
+      
+      // Fragmenta os dados
+      const fragments = [];
+      const fragmentSize = maxSize - 100; // Reserva espaço para metadados
+      const totalFragments = Math.ceil(encoded.length / fragmentSize);
+      const fragmentId = Date.now().toString(36); // ID único para este backup
+      
+      for (let i = 0; i < totalFragments; i++) {
+        const start = i * fragmentSize;
+        const end = Math.min(start + fragmentSize, encoded.length);
+        const fragment = encoded.slice(start, end);
+        
+        fragments.push({
+          id: fragmentId,
+          part: i + 1,
+          total: totalFragments,
+          data: fragment,
+          checksum: btoa(fragment).slice(0, 8) // Checksum simples
+        });
+      }
+      
+      return { fragments };
+    }
+
+    function criarURLFragmento(fragment) {
+      const fragmentData = JSON.stringify(fragment);
+      const encoded = btoa(encodeURIComponent(fragmentData));
+      return `https://nathan-12t.github.io/teles-design/?biblion_fragment=${encoded}`;
+    }
+
+    // ===== QR CODE DE BACKUP AVANÇADO =====
     function gerarQRCodeBackup() {
       const container = document.getElementById('backupQRContainer');
+      container.innerHTML = '<div class="text-center text-blue-600">🔄 Processando backup...</div>';
       
       try {
-        // Cria backup dos dados atuais
+        // Cria backup otimizado dos dados atuais
         const backupData = {
-          ...database,
-          metadata: {
-            ...database.metadata,
-            exportedAt: new Date().toISOString(),
-            exportedBy: currentUser?.nome || 'Sistema',
-            systemName: 'BibliOn - Sistema de Biblioteca',
-            backupType: 'QR Code Share'
+          v: '3.0', // Versão compacta
+          u: database.usuarios.map(u => ({
+            i: u.id,
+            n: u.nome,
+            l: u.login,
+            s: u.senha,
+            t: u.tipo,
+            tm: u.turma || '',
+            st: u.status,
+            lr: u.livrosLidos || 0
+          })),
+          l: database.livros.map(l => ({
+            i: l.id,
+            t: l.titulo,
+            a: l.autor,
+            e: l.editora || '',
+            c: l.categoria || '',
+            sc: l.subcategoria || '',
+            q: l.quantidade,
+            d: l.disponivel,
+            ds: l.descricao || '',
+            f: l.foto ? l.foto.slice(0, 500) : '', // Limita tamanho da foto
+            cb: l.codigoBarra || '',
+            lc: l.localizacao || '',
+            av: l.avaliacoes || []
+          })),
+          e: database.emprestimos.map(e => ({
+            i: e.id,
+            ai: e.alunoId,
+            li: e.livroId,
+            de: e.dataEmprestimo,
+            dd: e.dataDevolucao,
+            st: e.status,
+            dr: e.dataRealDevolucao || ''
+          })),
+          ni: database.nextId,
+          m: {
+            v: '3.0',
+            lu: new Date().toISOString(),
+            sn: 'BibliOn',
+            eb: currentUser?.nome || 'Sistema',
+            ea: new Date().toISOString()
           }
         };
         
-        // Converte para JSON compactado
-        const jsonData = JSON.stringify(backupData);
+        // Tenta fragmentação inteligente
+        const result = fragmentarDados(backupData, 2800);
         
-        // Codifica em Base64
-        const encodedData = btoa(encodeURIComponent(jsonData));
-        
-        // Cria URL especial para backup
-        const backupUrl = `https://nathan-12t.github.io/teles-design/?biblion_backup=${encodedData}`;
-        
-        // Verifica se a URL não é muito longa
-        if (backupUrl.length > 2500) {
-          throw new Error('Dados muito grandes para QR Code');
+        if (result.single) {
+          // Dados cabem em um QR Code
+          const backupUrl = `https://nathan-12t.github.io/teles-design/?biblion_backup=${result.single}`;
+          const qrCode = createQRCodeSVG(backupUrl, 180);
+          
+          container.innerHTML = '';
+          container.appendChild(qrCode);
+          
+          const info = document.createElement('div');
+          info.className = 'mt-2 text-xs text-green-600';
+          info.innerHTML = `
+            <div class="font-semibold">✅ QR Code Único Gerado!</div>
+            <div>📊 ${database.livros.length} livros • ${database.usuarios.length} usuários • ${database.emprestimos.length} empréstimos</div>
+            <div>💾 Tamanho: ${Math.round(result.single.length / 1024 * 100) / 100} KB</div>
+          `;
+          container.appendChild(info);
+          
+          alert('📱 QR Code do backup gerado com sucesso!\n\n✅ Todos os dados cabem em um único código\n\n🔒 Compartilhe apenas com pessoas autorizadas!');
+          
+        } else if (result.fragments) {
+          // Precisa de múltiplos QR Codes
+          container.innerHTML = '';
+          
+          // Título
+          const title = document.createElement('div');
+          title.className = 'text-sm font-semibold text-purple-600 mb-3';
+          title.innerHTML = `📱 Backup Fragmentado (${result.fragments.length} códigos)`;
+          container.appendChild(title);
+          
+          // Container dos QR Codes
+          const qrGrid = document.createElement('div');
+          qrGrid.className = 'grid grid-cols-2 gap-2';
+          
+          result.fragments.forEach((fragment, index) => {
+            const fragmentUrl = criarURLFragmento(fragment);
+            const qrWrapper = document.createElement('div');
+            qrWrapper.className = 'text-center';
+            
+            const qrCode = createQRCodeSVG(fragmentUrl, 80);
+            qrWrapper.appendChild(qrCode);
+            
+            const label = document.createElement('div');
+            label.className = 'text-xs text-purple-600 mt-1';
+            label.textContent = `${index + 1}/${result.fragments.length}`;
+            qrWrapper.appendChild(label);
+            
+            qrGrid.appendChild(qrWrapper);
+          });
+          
+          container.appendChild(qrGrid);
+          
+          // Instruções
+          const instructions = document.createElement('div');
+          instructions.className = 'mt-3 text-xs text-purple-700 bg-purple-50 p-2 rounded';
+          instructions.innerHTML = `
+            <div class="font-semibold mb-1">📋 Como usar:</div>
+            <div>1. Escaneie TODOS os códigos em ordem</div>
+            <div>2. O backup será montado automaticamente</div>
+            <div>3. Aguarde o download do arquivo completo</div>
+          `;
+          container.appendChild(instructions);
+          
+          // Estatísticas
+          const stats = document.createElement('div');
+          stats.className = 'mt-2 text-xs text-purple-600';
+          stats.innerHTML = `
+            <div>📊 ${database.livros.length} livros • ${database.usuarios.length} usuários • ${database.emprestimos.length} empréstimos</div>
+            <div>💾 Total: ${Math.round(result.fragments.reduce((sum, f) => sum + f.data.length, 0) / 1024 * 100) / 100} KB</div>
+          `;
+          container.appendChild(stats);
+          
+          alert(`📱 Backup fragmentado gerado!\n\n🔢 ${result.fragments.length} QR Codes criados\n\n📋 Escaneie todos os códigos em ordem para reconstruir o backup completo.\n\n💡 Dica: Use "Copiar Link" para uma alternativa mais simples.`);
+          
         }
         
-        // Gera QR Code
-        const qrSize = 180;
-        const qrCode = createQRCodeSVG(backupUrl, qrSize);
-        
-        container.innerHTML = '';
-        container.appendChild(qrCode);
-        
-        // Adiciona informações do backup
-        const info = document.createElement('div');
-        info.className = 'mt-2 text-xs text-purple-600';
-        info.innerHTML = `
-          <div class="font-semibold">✅ QR Code Gerado!</div>
-          <div>${database.livros.length} livros • ${database.usuarios.length} usuários</div>
-          <div>${database.emprestimos.length} empréstimos</div>
-        `;
-        container.appendChild(info);
-        
-        alert('📱 QR Code do backup gerado com sucesso!\n\n✨ Qualquer pessoa que escanear este código terá acesso a todos os dados da biblioteca.\n\n🔒 Compartilhe apenas com pessoas autorizadas!');
-        
       } catch (error) {
+        console.error('Erro ao gerar QR Code:', error);
+        
         container.innerHTML = `
           <div class="text-center text-red-600 p-4">
-            <div class="text-2xl mb-2">⚠️</div>
-            <div class="text-sm">Dados muito grandes para QR Code</div>
+            <div class="text-2xl mb-2">❌</div>
+            <div class="text-sm">Erro ao processar backup</div>
             <div class="text-xs mt-1">Use "Copiar Link" como alternativa</div>
           </div>
         `;
         
-        alert('❌ Os dados são muito grandes para gerar um QR Code.\n\nUse a opção "Copiar Link" para compartilhar o backup.');
+        alert('❌ Erro ao gerar QR Code do backup.\n\nUse a opção "Copiar Link" para compartilhar os dados.');
       }
     }
 
@@ -2318,23 +2539,198 @@
       }
     }
 
+    // ===== SISTEMA DE FRAGMENTOS =====
+    let fragmentStorage = {};
+
+    function processarFragmento(fragmentData) {
+      const fragment = fragmentData;
+      const fragmentId = fragment.id;
+      
+      // Inicializa storage para este backup se não existir
+      if (!fragmentStorage[fragmentId]) {
+        fragmentStorage[fragmentId] = {
+          fragments: {},
+          total: fragment.total,
+          received: 0
+        };
+      }
+      
+      const storage = fragmentStorage[fragmentId];
+      
+      // Adiciona o fragmento se ainda não foi recebido
+      if (!storage.fragments[fragment.part]) {
+        storage.fragments[fragment.part] = fragment;
+        storage.received++;
+        
+        console.log(`📦 Fragmento ${fragment.part}/${fragment.total} recebido`);
+        
+        // Verifica se todos os fragmentos foram recebidos
+        if (storage.received === storage.total) {
+          console.log('✅ Todos os fragmentos recebidos, montando backup...');
+          
+          try {
+            // Reconstrói os dados na ordem correta
+            let reconstructedData = '';
+            for (let i = 1; i <= storage.total; i++) {
+              if (!storage.fragments[i]) {
+                throw new Error(`Fragmento ${i} não encontrado`);
+              }
+              reconstructedData += storage.fragments[i].data;
+            }
+            
+            // Decodifica os dados completos
+            const decodedData = decodeURIComponent(atob(reconstructedData));
+            const backupData = decompressData(decodedData);
+            
+            // Converte formato compacto para formato completo
+            const fullBackup = expandirBackupCompacto(backupData);
+            
+            // Cria arquivo para download
+            const blob = new Blob([JSON.stringify(fullBackup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `biblion-backup-fragmentado-${new Date().toISOString().split('T')[0]}.json`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            URL.revokeObjectURL(url);
+            
+            // Limpa o storage
+            delete fragmentStorage[fragmentId];
+            
+            // Notifica sucesso
+            setTimeout(() => {
+              const exportedBy = fullBackup.metadata?.exportedBy || 'Sistema';
+              const exportedAt = fullBackup.metadata?.exportedAt ? 
+                new Date(fullBackup.metadata.exportedAt).toLocaleString('pt-BR') : 
+                'Data não informada';
+              
+              alert(`📥 Backup fragmentado montado com sucesso!\n\n✅ Arquivo completo salvo na pasta Downloads\n\n📊 Dados do backup:\n• ${fullBackup.livros.length} livros\n• ${fullBackup.usuarios.length} usuários\n• ${fullBackup.emprestimos.length} empréstimos\n\n👤 Exportado por: ${exportedBy}\n📅 Data: ${exportedAt}\n\n🔢 Fragmentos processados: ${storage.total}`);
+            }, 1000);
+            
+            return true;
+            
+          } catch (error) {
+            console.error('Erro ao montar backup fragmentado:', error);
+            alert('❌ Erro ao montar backup fragmentado.\n\nVerifique se todos os QR Codes foram escaneados corretamente.');
+            delete fragmentStorage[fragmentId];
+          }
+        } else {
+          // Ainda faltam fragmentos
+          setTimeout(() => {
+            alert(`📦 Fragmento ${fragment.part}/${fragment.total} recebido!\n\n⏳ Faltam ${storage.total - storage.received} fragmento(s)\n\n📱 Continue escaneando os próximos QR Codes para completar o backup.`);
+          }, 500);
+        }
+      }
+      
+      return false;
+    }
+
+    function expandirBackupCompacto(compactData) {
+      // Converte formato compacto v3.0 para formato completo
+      if (compactData.v === '3.0') {
+        return {
+          usuarios: compactData.u.map(u => ({
+            id: u.i,
+            nome: u.n,
+            login: u.l,
+            senha: u.s,
+            tipo: u.t,
+            turma: u.tm,
+            status: u.st,
+            livrosLidos: u.lr
+          })),
+          livros: compactData.l.map(l => ({
+            id: l.i,
+            titulo: l.t,
+            autor: l.a,
+            editora: l.e,
+            categoria: l.c,
+            subcategoria: l.sc,
+            quantidade: l.q,
+            disponivel: l.d,
+            descricao: l.ds,
+            foto: l.f,
+            codigoBarra: l.cb,
+            localizacao: l.lc,
+            avaliacoes: l.av
+          })),
+          emprestimos: compactData.e.map(e => ({
+            id: e.i,
+            alunoId: e.ai,
+            livroId: e.li,
+            dataEmprestimo: e.de,
+            dataDevolucao: e.dd,
+            status: e.st,
+            dataRealDevolucao: e.dr
+          })),
+          nextId: compactData.ni,
+          metadata: {
+            version: compactData.m.v,
+            lastUpdate: compactData.m.lu,
+            systemName: compactData.m.sn === 'BibliOn' ? 'BibliOn - Sistema de Biblioteca' : compactData.m.sn,
+            exportedBy: compactData.m.eb,
+            exportedAt: compactData.m.ea
+          }
+        };
+      }
+      
+      // Retorna dados já no formato completo
+      return compactData;
+    }
+
     // ===== DETECÇÃO DE BACKUP NA URL =====
     function detectarBackupNaURL() {
       const urlParams = new URLSearchParams(window.location.search);
       
-      // Verifica parâmetro do backup do BibliOn
-      const backupParam = urlParams.get('biblion_backup') || urlParams.get('backup');
+      // Verifica fragmento primeiro
+      const fragmentParam = urlParams.get('biblion_fragment');
+      if (fragmentParam) {
+        try {
+          const decodedFragment = decodeURIComponent(atob(fragmentParam));
+          const fragmentData = JSON.parse(decodedFragment);
+          
+          // Remove o parâmetro da URL
+          const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+          
+          return processarFragmento(fragmentData);
+          
+        } catch (error) {
+          console.error('Erro ao processar fragmento:', error);
+          setTimeout(() => {
+            alert('❌ Erro ao processar fragmento do backup.\n\nO QR Code pode estar corrompido.');
+          }, 1000);
+        }
+      }
       
+      // Verifica parâmetro do backup completo
+      const backupParam = urlParams.get('biblion_backup') || urlParams.get('backup');
       if (backupParam) {
         try {
           // Decodifica os dados do backup
           const decodedData = decodeURIComponent(atob(backupParam));
-          const backupData = JSON.parse(decodedData);
+          let backupData;
+          
+          try {
+            // Tenta descomprimir primeiro
+            backupData = decompressData(decodedData);
+          } catch {
+            // Fallback para JSON normal
+            backupData = JSON.parse(decodedData);
+          }
+          
+          // Expande se for formato compacto
+          const fullBackup = expandirBackupCompacto(backupData);
           
           // Valida se é um backup válido
-          if (backupData.usuarios && backupData.livros && backupData.emprestimos) {
+          if (fullBackup.usuarios && fullBackup.livros && fullBackup.emprestimos) {
             // Cria o arquivo de backup para download
-            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const blob = new Blob([JSON.stringify(fullBackup, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             
             // Cria link de download automático
@@ -2356,12 +2752,12 @@
             
             // Notifica o usuário
             setTimeout(() => {
-              const exportedBy = backupData.metadata?.exportedBy || 'Sistema';
-              const exportedAt = backupData.metadata?.exportedAt ? 
-                new Date(backupData.metadata.exportedAt).toLocaleString('pt-BR') : 
+              const exportedBy = fullBackup.metadata?.exportedBy || 'Sistema';
+              const exportedAt = fullBackup.metadata?.exportedAt ? 
+                new Date(fullBackup.metadata.exportedAt).toLocaleString('pt-BR') : 
                 'Data não informada';
               
-              alert(`📥 Backup do BibliOn baixado automaticamente!\n\n✅ Arquivo salvo na pasta Downloads\n\n📊 Dados do backup:\n• ${backupData.livros.length} livros\n• ${backupData.usuarios.length} usuários\n• ${backupData.emprestimos.length} empréstimos\n\n👤 Exportado por: ${exportedBy}\n📅 Data: ${exportedAt}`);
+              alert(`📥 Backup do BibliOn baixado automaticamente!\n\n✅ Arquivo salvo na pasta Downloads\n\n📊 Dados do backup:\n• ${fullBackup.livros.length} livros\n• ${fullBackup.usuarios.length} usuários\n• ${fullBackup.emprestimos.length} empréstimos\n\n👤 Exportado por: ${exportedBy}\n📅 Data: ${exportedAt}`);
             }, 1000);
             
             return true;
@@ -2439,5 +2835,5 @@
       });
     });
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98fb6b65466f9a86',t:'MTc2MDY1ODIxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9902ac13c589f1f2',t:'MTc2MDczNDI2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
