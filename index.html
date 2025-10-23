@@ -92,6 +92,7 @@
           <button onclick="showTab('devolucoes')" class="nav-btn py-4 border-b-2 border-transparent hover:border-yellow-600">⏰ Devoluções</button>
           <button id="usuariosTabBtn" onclick="showTab('usuarios')" class="nav-btn py-4 border-b-2 border-transparent hover:border-yellow-600">👥 Usuários</button>
           <button onclick="showTab('backup')" class="nav-btn py-4 border-b-2 border-transparent hover:border-yellow-600">💾 Backup</button>
+          <button id="relatoriosTabBtn" onclick="showTab('relatorios')" class="nav-btn py-4 border-b-2 border-transparent hover:border-yellow-600">📊 Relatórios</button>
         </div>
       </div>
     </nav>
@@ -367,6 +368,47 @@
           </div>
         </div>
       </section>
+
+      <!-- RELATÓRIOS -->
+      <section id="relatoriosTab" class="tab-content hidden">
+        <h2 class="text-2xl font-bold text-white mb-6">📊 Relatórios e Estatísticas</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Relatório de Leitura por Usuário -->
+          <div class="bg-white rounded-xl p-6">
+            <h3 class="text-xl font-bold text-blue-600 mb-4">📚 Relatório de Leitura</h3>
+            
+            <div class="mb-4">
+              <select id="filtroTipoUsuario" class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option value="">Todos os tipos</option>
+                <option value="aluno">Apenas Alunos</option>
+                <option value="professor">Apenas Professores</option>
+                <option value="admin">Apenas Admins</option>
+              </select>
+            </div>
+            
+            <div id="relatorioLeitura" class="space-y-3 max-h-96 overflow-y-auto"></div>
+          </div>
+
+          <!-- Top Livros Mais Emprestados -->
+          <div class="bg-white rounded-xl p-6">
+            <h3 class="text-xl font-bold text-green-600 mb-4">🏆 Top Livros Mais Emprestados</h3>
+            <div id="topLivros" class="space-y-3"></div>
+          </div>
+
+          <!-- Estatísticas Gerais -->
+          <div class="bg-white rounded-xl p-6">
+            <h3 class="text-xl font-bold text-purple-600 mb-4">📈 Estatísticas Gerais</h3>
+            <div id="estatisticasGerais" class="grid grid-cols-2 gap-4"></div>
+          </div>
+
+          <!-- Feedbacks dos Livros -->
+          <div class="bg-white rounded-xl p-6">
+            <h3 class="text-xl font-bold text-orange-600 mb-4">💬 Feedbacks dos Livros</h3>
+            <div id="feedbacksLivros" class="space-y-3 max-h-96 overflow-y-auto"></div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Footer -->
@@ -455,6 +497,7 @@
             <option value="admin">Admin</option>
           </select>
         </div>
+        <div><label for="addUserTurma" class="block text-sm font-medium mb-1">Série/Turma</label><input id="addUserTurma" name="turma" placeholder="Ex: 9º A, 1º EM B, 3º Técnico..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/></div>
         <div class="flex justify-end gap-2">
           <button type="button" onclick="closeModal('addUserModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
           <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Adicionar</button>
@@ -471,7 +514,7 @@
         <button onclick="closeModal('importUsersModal')" class="text-gray-500 hover:text-gray-700">✕</button>
       </div>
       <div class="space-y-4">
-        <textarea id="importUsersText" rows="8" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="Nome | Login | Senha | Tipo&#10;Ex: João Silva | joao | 1234 | aluno"></textarea>
+        <textarea id="importUsersText" rows="8" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="Nome | Login | Senha | Tipo | Série/Turma&#10;Ex: João Silva | joao | 1234 | aluno | 9º A"></textarea>
         <div class="flex justify-end gap-2">
           <button onclick="closeModal('importUsersModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
           <button onclick="importUsers()" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg">Importar</button>
@@ -649,6 +692,7 @@
               <label class="block text-sm font-medium text-blue-700 mb-1">Empréstimos</label>
               <select id="loanConflictMode" class="w-full px-3 py-2 border rounded-lg text-sm">
                 <option value="merge_all">Mesclar todos</option>
+                <option value="skip_duplicates">Pular duplicados</option>
                 <option value="active_only">Apenas ativos</option>
                 <option value="recent_only">Mais recentes</option>
               </select>
@@ -682,6 +726,76 @@
           <button id="executeMergeBtn" onclick="executeMergeBackups()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg hidden">🔗 Executar Junção</button>
           <button id="applyMergeBtn" onclick="applyMergedBackup()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg hidden">✅ Aplicar Backup Unificado</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Adicionar Feedback -->
+  <div id="addFeedbackModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold">💬 Avaliar Livro</h3>
+        <button onclick="closeModal('addFeedbackModal')" class="text-gray-500 hover:text-gray-700">✕</button>
+      </div>
+      <form id="addFeedbackForm" class="space-y-4">
+        <input type="hidden" id="feedbackLivroId" name="livroId">
+        
+        <div id="feedbackLivroInfo" class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <div class="font-semibold text-blue-800" id="feedbackLivroTitulo"></div>
+          <div class="text-sm text-blue-600" id="feedbackLivroAutor"></div>
+        </div>
+        
+        <div>
+          <label for="feedbackNota" class="block text-sm font-medium mb-2">⭐ Nota (1 a 5 estrelas)</label>
+          <div class="flex gap-2">
+            <button type="button" onclick="setRating(1)" class="rating-btn px-3 py-2 border rounded hover:bg-yellow-100" data-rating="1">⭐</button>
+            <button type="button" onclick="setRating(2)" class="rating-btn px-3 py-2 border rounded hover:bg-yellow-100" data-rating="2">⭐⭐</button>
+            <button type="button" onclick="setRating(3)" class="rating-btn px-3 py-2 border rounded hover:bg-yellow-100" data-rating="3">⭐⭐⭐</button>
+            <button type="button" onclick="setRating(4)" class="rating-btn px-3 py-2 border rounded hover:bg-yellow-100" data-rating="4">⭐⭐⭐⭐</button>
+            <button type="button" onclick="setRating(5)" class="rating-btn px-3 py-2 border rounded hover:bg-yellow-100" data-rating="5">⭐⭐⭐⭐⭐</button>
+          </div>
+          <input type="hidden" id="feedbackNota" name="nota" required>
+        </div>
+        
+        <div>
+          <label for="feedbackComentario" class="block text-sm font-medium mb-1">💭 Comentário</label>
+          <textarea id="feedbackComentario" name="comentario" rows="4" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="O que você achou do livro? (opcional)"></textarea>
+        </div>
+        
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('addFeedbackModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">💬 Enviar Avaliação</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Ver Feedbacks -->
+  <div id="viewFeedbacksModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold">👁️ Avaliações do Livro</h3>
+        <button onclick="closeModal('viewFeedbacksModal')" class="text-gray-500 hover:text-gray-700">✕</button>
+      </div>
+      
+      <div id="feedbackLivroInfoView" class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <div class="font-semibold text-green-800" id="viewFeedbackLivroTitulo"></div>
+        <div class="text-sm text-green-600" id="viewFeedbackLivroAutor"></div>
+        <div class="mt-2 flex items-center gap-4">
+          <div class="flex items-center gap-1">
+            <span id="viewFeedbackMediaEstrelas" class="text-yellow-500"></span>
+            <span id="viewFeedbackMedia" class="font-semibold"></span>
+          </div>
+          <div class="text-sm text-gray-600">
+            <span id="viewFeedbackTotal">0</span> avaliação(ões)
+          </div>
+        </div>
+      </div>
+      
+      <div id="feedbacksList" class="space-y-4"></div>
+      
+      <div class="mt-4 text-center">
+        <button onclick="closeModal('viewFeedbacksModal')" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">Fechar</button>
       </div>
     </div>
   </div>
@@ -730,7 +844,8 @@
         }
       ],
       emprestimos: [],
-      nextId: { usuarios: 2, livros: 3, emprestimos: 1 },
+      feedbacks: [],
+      nextId: { usuarios: 2, livros: 3, emprestimos: 1, feedbacks: 1 },
       metadata: {
         version: '1.0',
         lastUpdate: new Date().toISOString(),
@@ -981,7 +1096,11 @@
           database = parsed;
           
           if (!database.nextId) {
-            database.nextId = { usuarios: 2, livros: 3, emprestimos: 1 };
+            database.nextId = { usuarios: 2, livros: 3, emprestimos: 1, feedbacks: 1 };
+          }
+          
+          if (!database.feedbacks) {
+            database.feedbacks = [];
           }
           
           if (!database.metadata) {
@@ -1079,6 +1198,7 @@
       document.getElementById('addEmprestimoBtn').classList.remove('hidden');
       document.getElementById('meusEmprestimos').classList.add('hidden');
       document.getElementById('livrosActions').classList.remove('hidden');
+      document.getElementById('relatoriosTabBtn').classList.remove('hidden');
       
       document.getElementById('trocarSenhaBtn').classList.toggle('hidden', !isAdmin);
       
@@ -1088,6 +1208,7 @@
         document.getElementById('addEmprestimoBtn').classList.add('hidden');
         document.getElementById('meusEmprestimos').classList.remove('hidden');
         document.getElementById('livrosActions').classList.add('hidden');
+        document.getElementById('relatoriosTabBtn').classList.add('hidden');
       }
       
       updateDashboard();
@@ -1138,6 +1259,9 @@
         case 'backup':
           updateBackupStats();
           updateStats();
+          break;
+        case 'relatorios':
+          loadRelatorios();
           break;
       }
     }
@@ -1294,12 +1418,16 @@
                   ${livro.disponivel > 0 ? '✅ Disponível' : '❌ Indisponível'}
                 </span>
               </div>
-              ${canEdit ? `
-                <div class="mt-3 flex gap-2">
+              <div class="mt-3 flex gap-2 flex-wrap">
+                ${canEdit ? `
                   <button onclick="editLivro(${livro.id})" class="px-3 py-1 bg-amber-700 hover:bg-amber-800 text-white rounded text-sm">✏️ Editar</button>
                   <button onclick="deleteLivro(${livro.id})" class="px-3 py-1 bg-red-700 hover:bg-red-800 text-white rounded text-sm">🗑️ Excluir</button>
-                </div>
-              ` : ''}
+                ` : ''}
+                ${currentUser?.tipo === 'aluno' ? `
+                  <button onclick="adicionarFeedback(${livro.id})" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm">💬 Avaliar</button>
+                ` : ''}
+                <button onclick="verFeedbacks(${livro.id})" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">👁️ Ver Avaliações</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1636,7 +1764,7 @@
         login: login,
         senha: formData.get('senha'),
         tipo: formData.get('tipo'),
-        turma: '',
+        turma: formData.get('turma')?.trim() || '',
         status: 'ativo',
         livrosLidos: 0
       };
@@ -1680,7 +1808,7 @@
               login: login,
               senha: parts[2],
               tipo: parts[3],
-              turma: '',
+              turma: parts[4]?.trim() || '',
               status: 'ativo',
               livrosLidos: 0
             };
@@ -2464,6 +2592,15 @@
               case 'merge_all':
                 return true;
                 
+              case 'skip_duplicates':
+                // Verifica se já existe empréstimo similar (mesmo aluno + livro + data próxima)
+                const similarLoan = mergedBackupData.emprestimos.find(e => 
+                  e.alunoId === newLoan.alunoId && 
+                  e.livroId === newLoan.livroId &&
+                  Math.abs(new Date(e.dataEmprestimo) - new Date(newLoan.dataEmprestimo)) <= 86400000 // 1 dia em ms
+                );
+                return !similarLoan;
+                
               case 'active_only':
                 return newLoan.status === 'ativo';
                 
@@ -2500,9 +2637,10 @@
           if (areIdentical) {
             skipped++; // Dados idênticos, pula
           } else {
-            // Se for mais recente, atualiza
-            if (conflictMode === 'recent_only' && 
-                new Date(newLoan.dataEmprestimo) > new Date(existing.dataEmprestimo)) {
+            // Se for mais recente ou modo específico, atualiza
+            if ((conflictMode === 'recent_only' && 
+                new Date(newLoan.dataEmprestimo) > new Date(existing.dataEmprestimo)) ||
+                (conflictMode === 'skip_duplicates' && !areIdentical)) {
               const existingIndex = mergedBackupData.emprestimos.findIndex(e => e.id === existing.id);
               mergedBackupData.emprestimos[existingIndex] = { ...newLoan };
               added++;
@@ -2669,6 +2807,10 @@
       document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
       document.getElementById('addEmprestimoForm').addEventListener('submit', handleAddEmprestimo);
       document.getElementById('editEmprestimoForm').addEventListener('submit', handleEditEmprestimo);
+      document.getElementById('addFeedbackForm').addEventListener('submit', handleAddFeedback);
+      
+      // Filtro de relatórios
+      document.getElementById('filtroTipoUsuario').addEventListener('change', loadRelatorioLeitura);
       
       // Preview de imagens
       document.getElementById('addBookFoto').addEventListener('change', function(e) {
@@ -2710,6 +2852,394 @@
       document.getElementById('filterDisponibilidade').addEventListener('change', loadLivros);
     });
 
+    // ===== SISTEMA DE FEEDBACKS =====
+    function adicionarFeedback(livroId) {
+      const livro = database.livros.find(l => l.id === livroId);
+      
+      if (!livro) {
+        alert('❌ Livro não encontrado.');
+        return;
+      }
+      
+      // Verifica se o aluno já avaliou este livro
+      const jaAvaliou = database.feedbacks.some(f => 
+        f.livroId === livroId && f.usuarioId === currentUser.id
+      );
+      
+      if (jaAvaliou) {
+        alert('📝 Você já avaliou este livro!\n\nPara alterar sua avaliação, entre em contato com o administrador.');
+        return;
+      }
+      
+      // Preenche informações do livro
+      document.getElementById('feedbackLivroId').value = livroId;
+      document.getElementById('feedbackLivroTitulo').textContent = livro.titulo;
+      document.getElementById('feedbackLivroAutor').textContent = livro.autor;
+      
+      // Limpa seleção anterior
+      document.querySelectorAll('.rating-btn').forEach(btn => {
+        btn.classList.remove('bg-yellow-200', 'border-yellow-400');
+      });
+      document.getElementById('feedbackNota').value = '';
+      document.getElementById('feedbackComentario').value = '';
+      
+      showModal('addFeedbackModal');
+    }
+
+    function setRating(rating) {
+      document.getElementById('feedbackNota').value = rating;
+      
+      // Atualiza visual dos botões
+      document.querySelectorAll('.rating-btn').forEach((btn, index) => {
+        if (index < rating) {
+          btn.classList.add('bg-yellow-200', 'border-yellow-400');
+        } else {
+          btn.classList.remove('bg-yellow-200', 'border-yellow-400');
+        }
+      });
+    }
+
+    function handleAddFeedback(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const livroId = parseInt(formData.get('livroId'));
+      const nota = parseInt(formData.get('nota'));
+      const comentario = formData.get('comentario').trim();
+      
+      if (!nota) {
+        alert('❌ Por favor, selecione uma nota de 1 a 5 estrelas.');
+        return;
+      }
+      
+      const feedback = {
+        id: database.nextId.feedbacks++,
+        livroId: livroId,
+        usuarioId: currentUser.id,
+        nota: nota,
+        comentario: comentario,
+        data: new Date().toISOString().split('T')[0],
+        nomeUsuario: currentUser.nome
+      };
+      
+      database.feedbacks.push(feedback);
+      saveDatabase();
+      
+      closeModal('addFeedbackModal');
+      alert('✅ Avaliação enviada com sucesso!\n\nObrigado por compartilhar sua opinião sobre o livro!');
+    }
+
+    function verFeedbacks(livroId) {
+      const livro = database.livros.find(l => l.id === livroId);
+      
+      if (!livro) {
+        alert('❌ Livro não encontrado.');
+        return;
+      }
+      
+      const feedbacks = database.feedbacks.filter(f => f.livroId === livroId);
+      
+      // Preenche informações do livro
+      document.getElementById('viewFeedbackLivroTitulo').textContent = livro.titulo;
+      document.getElementById('viewFeedbackLivroAutor').textContent = livro.autor;
+      document.getElementById('viewFeedbackTotal').textContent = feedbacks.length;
+      
+      // Calcula média
+      if (feedbacks.length > 0) {
+        const media = feedbacks.reduce((sum, f) => sum + f.nota, 0) / feedbacks.length;
+        const mediaFormatada = media.toFixed(1);
+        const estrelas = '⭐'.repeat(Math.round(media));
+        
+        document.getElementById('viewFeedbackMedia').textContent = `${mediaFormatada}/5.0`;
+        document.getElementById('viewFeedbackMediaEstrelas').textContent = estrelas;
+      } else {
+        document.getElementById('viewFeedbackMedia').textContent = 'Sem avaliações';
+        document.getElementById('viewFeedbackMediaEstrelas').textContent = '';
+      }
+      
+      // Lista feedbacks
+      const container = document.getElementById('feedbacksList');
+      
+      if (feedbacks.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">📝 Nenhuma avaliação ainda.<br><br>Seja o primeiro a avaliar este livro!</div>';
+      } else {
+        container.innerHTML = feedbacks.map(feedback => `
+          <div class="border rounded-lg p-4 bg-gray-50">
+            <div class="flex items-center justify-between mb-2">
+              <div class="font-semibold text-gray-800">${feedback.nomeUsuario}</div>
+              <div class="flex items-center gap-2">
+                <span class="text-yellow-500">${'⭐'.repeat(feedback.nota)}</span>
+                <span class="text-sm text-gray-500">${formatDate(feedback.data)}</span>
+              </div>
+            </div>
+            ${feedback.comentario ? `
+              <div class="text-gray-700 text-sm bg-white p-3 rounded border-l-4 border-blue-400">
+                "${feedback.comentario}"
+              </div>
+            ` : '<div class="text-gray-500 text-sm italic">Sem comentário</div>'}
+          </div>
+        `).join('');
+      }
+      
+      showModal('viewFeedbacksModal');
+    }
+
+    // ===== SISTEMA DE RELATÓRIOS =====
+    function loadRelatorios() {
+      loadRelatorioLeitura();
+      loadTopLivros();
+      loadEstatisticasGerais();
+      loadFeedbacksLivros();
+    }
+
+    function loadRelatorioLeitura() {
+      const filtroTipo = document.getElementById('filtroTipoUsuario').value;
+      let usuarios = database.usuarios.filter(u => u.status === 'ativo');
+      
+      if (filtroTipo) {
+        usuarios = usuarios.filter(u => u.tipo === filtroTipo);
+      }
+      
+      // Calcula livros lidos por usuário
+      const usuariosComLeitura = usuarios.map(usuario => {
+        const emprestimosDevolvidos = database.emprestimos.filter(e => 
+          e.alunoId === usuario.id && e.status === 'devolvido'
+        );
+        
+        const livrosLidos = emprestimosDevolvidos.length;
+        const feedbacksDados = database.feedbacks.filter(f => f.usuarioId === usuario.id).length;
+        
+        return {
+          ...usuario,
+          livrosLidos,
+          feedbacksDados
+        };
+      }).sort((a, b) => b.livrosLidos - a.livrosLidos);
+      
+      const container = document.getElementById('relatorioLeitura');
+      
+      if (usuariosComLeitura.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500">Nenhum usuário encontrado.</div>';
+        return;
+      }
+      
+      container.innerHTML = usuariosComLeitura.map((usuario, index) => `
+        <div class="flex items-center justify-between p-3 border rounded-lg ${index < 3 ? 'bg-yellow-50 border-yellow-200' : 'bg-white'}">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+              index === 0 ? 'bg-yellow-500 text-white' :
+              index === 1 ? 'bg-gray-400 text-white' :
+              index === 2 ? 'bg-orange-600 text-white' :
+              'bg-blue-100 text-blue-800'
+            }">
+              ${index < 3 ? ['🥇', '🥈', '🥉'][index] : index + 1}
+            </div>
+            <div>
+              <div class="font-semibold">${usuario.nome}</div>
+              <div class="text-xs text-gray-600">
+                ${usuario.tipo} ${usuario.turma ? `• ${usuario.turma}` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="font-bold text-lg ${usuario.livrosLidos > 0 ? 'text-green-600' : 'text-gray-400'}">
+              ${usuario.livrosLidos}
+            </div>
+            <div class="text-xs text-gray-500">
+              ${usuario.livrosLidos === 1 ? 'livro' : 'livros'}
+            </div>
+            ${usuario.feedbacksDados > 0 ? `
+              <div class="text-xs text-blue-600 mt-1">
+                💬 ${usuario.feedbacksDados} avaliação${usuario.feedbacksDados !== 1 ? 'ões' : ''}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function loadTopLivros() {
+      // Conta empréstimos por livro
+      const livrosEmprestimos = {};
+      
+      database.emprestimos.forEach(emprestimo => {
+        if (!livrosEmprestimos[emprestimo.livroId]) {
+          livrosEmprestimos[emprestimo.livroId] = 0;
+        }
+        livrosEmprestimos[emprestimo.livroId]++;
+      });
+      
+      // Ordena livros por número de empréstimos
+      const topLivros = Object.entries(livrosEmprestimos)
+        .map(([livroId, count]) => {
+          const livro = database.livros.find(l => l.id === parseInt(livroId));
+          const feedbacks = database.feedbacks.filter(f => f.livroId === parseInt(livroId));
+          const mediaAvaliacao = feedbacks.length > 0 ? 
+            feedbacks.reduce((sum, f) => sum + f.nota, 0) / feedbacks.length : 0;
+          
+          return {
+            livro,
+            emprestimos: count,
+            avaliacoes: feedbacks.length,
+            mediaAvaliacao
+          };
+        })
+        .filter(item => item.livro)
+        .sort((a, b) => b.emprestimos - a.emprestimos)
+        .slice(0, 10);
+      
+      const container = document.getElementById('topLivros');
+      
+      if (topLivros.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500">Nenhum empréstimo registrado ainda.</div>';
+        return;
+      }
+      
+      container.innerHTML = topLivros.map((item, index) => `
+        <div class="flex items-center justify-between p-3 border rounded-lg ${index < 3 ? 'bg-green-50 border-green-200' : 'bg-white'}">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+              index === 0 ? 'bg-green-500 text-white' :
+              index === 1 ? 'bg-green-400 text-white' :
+              index === 2 ? 'bg-green-300 text-white' :
+              'bg-gray-100 text-gray-600'
+            }">
+              ${index + 1}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold truncate">${item.livro.titulo}</div>
+              <div class="text-xs text-gray-600 truncate">${item.livro.autor}</div>
+              ${item.avaliacoes > 0 ? `
+                <div class="text-xs text-yellow-600 mt-1">
+                  ${'⭐'.repeat(Math.round(item.mediaAvaliacao))} ${item.mediaAvaliacao.toFixed(1)} (${item.avaliacoes})
+                </div>
+              ` : ''}
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="font-bold text-lg text-green-600">${item.emprestimos}</div>
+            <div class="text-xs text-gray-500">empréstimos</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function loadEstatisticasGerais() {
+      const totalEmprestimos = database.emprestimos.length;
+      const emprestimosAtivos = database.emprestimos.filter(e => e.status === 'ativo').length;
+      const emprestimosDevolvidos = database.emprestimos.filter(e => e.status === 'devolvido').length;
+      const totalFeedbacks = database.feedbacks.length;
+      const usuariosAtivos = database.usuarios.filter(u => u.status === 'ativo').length;
+      const livrosDisponiveis = database.livros.filter(l => l.disponivel > 0).length;
+      
+      // Calcula média geral de avaliações
+      const mediaGeralAvaliacoes = database.feedbacks.length > 0 ? 
+        database.feedbacks.reduce((sum, f) => sum + f.nota, 0) / database.feedbacks.length : 0;
+      
+      // Usuário mais ativo
+      const usuarioMaisAtivo = database.usuarios
+        .map(usuario => ({
+          ...usuario,
+          emprestimos: database.emprestimos.filter(e => e.alunoId === usuario.id).length
+        }))
+        .filter(u => u.emprestimos > 0)
+        .sort((a, b) => b.emprestimos - a.emprestimos)[0];
+      
+      const container = document.getElementById('estatisticasGerais');
+      
+      container.innerHTML = `
+        <div class="text-center p-3 bg-blue-50 rounded-lg">
+          <div class="text-2xl text-blue-600 mb-1">📋</div>
+          <div class="font-bold text-lg">${totalEmprestimos}</div>
+          <div class="text-xs text-gray-600">Total Empréstimos</div>
+        </div>
+        
+        <div class="text-center p-3 bg-yellow-50 rounded-lg">
+          <div class="text-2xl text-yellow-600 mb-1">⏳</div>
+          <div class="font-bold text-lg">${emprestimosAtivos}</div>
+          <div class="text-xs text-gray-600">Empréstimos Ativos</div>
+        </div>
+        
+        <div class="text-center p-3 bg-green-50 rounded-lg">
+          <div class="text-2xl text-green-600 mb-1">✅</div>
+          <div class="font-bold text-lg">${emprestimosDevolvidos}</div>
+          <div class="text-xs text-gray-600">Devolvidos</div>
+        </div>
+        
+        <div class="text-center p-3 bg-purple-50 rounded-lg">
+          <div class="text-2xl text-purple-600 mb-1">💬</div>
+          <div class="font-bold text-lg">${totalFeedbacks}</div>
+          <div class="text-xs text-gray-600">Avaliações</div>
+        </div>
+        
+        <div class="text-center p-3 bg-orange-50 rounded-lg">
+          <div class="text-2xl text-orange-600 mb-1">👥</div>
+          <div class="font-bold text-lg">${usuariosAtivos}</div>
+          <div class="text-xs text-gray-600">Usuários Ativos</div>
+        </div>
+        
+        <div class="text-center p-3 bg-indigo-50 rounded-lg">
+          <div class="text-2xl text-indigo-600 mb-1">📚</div>
+          <div class="font-bold text-lg">${livrosDisponiveis}</div>
+          <div class="text-xs text-gray-600">Livros Disponíveis</div>
+        </div>
+        
+        ${mediaGeralAvaliacoes > 0 ? `
+          <div class="text-center p-3 bg-yellow-50 rounded-lg">
+            <div class="text-2xl text-yellow-600 mb-1">⭐</div>
+            <div class="font-bold text-lg">${mediaGeralAvaliacoes.toFixed(1)}</div>
+            <div class="text-xs text-gray-600">Média Geral</div>
+          </div>
+        ` : ''}
+        
+        ${usuarioMaisAtivo ? `
+          <div class="col-span-2 text-center p-3 bg-red-50 rounded-lg">
+            <div class="text-2xl text-red-600 mb-1">🏆</div>
+            <div class="font-bold text-sm">${usuarioMaisAtivo.nome}</div>
+            <div class="text-xs text-gray-600">Usuário Mais Ativo (${usuarioMaisAtivo.emprestimos} empréstimos)</div>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function loadFeedbacksLivros() {
+      const feedbacksRecentes = database.feedbacks
+        .sort((a, b) => new Date(b.data) - new Date(a.data))
+        .slice(0, 10);
+      
+      const container = document.getElementById('feedbacksLivros');
+      
+      if (feedbacksRecentes.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500">Nenhuma avaliação registrada ainda.</div>';
+        return;
+      }
+      
+      container.innerHTML = feedbacksRecentes.map(feedback => {
+        const livro = database.livros.find(l => l.id === feedback.livroId);
+        
+        return `
+          <div class="border rounded-lg p-3 bg-white">
+            <div class="flex items-center justify-between mb-2">
+              <div class="font-semibold text-sm">${feedback.nomeUsuario}</div>
+              <div class="flex items-center gap-2">
+                <span class="text-yellow-500">${'⭐'.repeat(feedback.nota)}</span>
+                <span class="text-xs text-gray-500">${formatDate(feedback.data)}</span>
+              </div>
+            </div>
+            <div class="text-sm text-gray-700 mb-2">
+              <strong>${livro?.titulo || 'Livro não encontrado'}</strong>
+              ${livro?.autor ? ` - ${livro.autor}` : ''}
+            </div>
+            ${feedback.comentario ? `
+              <div class="text-xs text-gray-600 bg-gray-50 p-2 rounded italic">
+                "${feedback.comentario}"
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
     // ===== FUNÇÕES GLOBAIS =====
     window.showTab = showTab;
     window.showModal = showModal;
@@ -2734,6 +3264,9 @@
     window.downloadMergedBackup = downloadMergedBackup;
     window.copyMergedBackup = copyMergedBackup;
     window.applyMergedBackup = applyMergedBackup;
+    window.adicionarFeedback = adicionarFeedback;
+    window.verFeedbacks = verFeedbacks;
+    window.setRating = setRating;
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99345aa56077f1db',t:'MTc2MTI1NTIyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99347b4b92cd28b1',t:'MTc2MTI1NjU1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
