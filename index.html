@@ -391,8 +391,16 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div><label for="addBookTitulo" class="block text-sm font-medium mb-1">Título *</label><input id="addBookTitulo" name="titulo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
           <div><label for="addBookAutor" class="block text-sm font-medium mb-1">Autor *</label><input id="addBookAutor" name="autor" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookEditora" class="block text-sm font-medium mb-1">Editora</label><input id="addBookEditora" name="editora" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
           <div><label for="addBookCategoria" class="block text-sm font-medium mb-1">Categoria</label><input id="addBookCategoria" name="categoria" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
-          <div><label for="addBookQuantidade" class="block text-sm font-medium mb-1">Quantidade *</label><input id="addBookQuantidade" type="number" min="1" name="quantidade" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookQuantidade" class="block text-sm font-medium mb-1">Quantidade Total *</label><input id="addBookQuantidade" type="number" min="1" name="quantidade" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookDisponivel" class="block text-sm font-medium mb-1">Disponível *</label><input id="addBookDisponivel" type="number" min="0" name="disponivel" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookCodigoBarra" class="block text-sm font-medium mb-1">Código de Barras</label><input id="addBookCodigoBarra" name="codigoBarra" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+          <div><label for="addBookLocalizacao" class="block text-sm font-medium mb-1">Localização</label><input id="addBookLocalizacao" name="localizacao" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"/></div>
+        </div>
+        <div>
+          <label for="addBookDescricao" class="block text-sm font-medium mb-1">Descrição</label>
+          <textarea id="addBookDescricao" name="descricao" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-700"></textarea>
         </div>
         <div>
           <label for="addBookFoto" class="block text-sm font-medium mb-1">📸 Foto do Livro</label>
@@ -658,10 +666,10 @@
           categoria: 'Literatura Brasileira', 
           quantidade: 5, 
           disponivel: 5, 
-          descricao: 'Clássico da literatura brasileira.', 
+          descricao: 'Clássico da literatura brasileira que narra a história de Bentinho e Capitu.', 
           foto: '', 
-          codigoBarra: '123456789', 
-          localizacao: 'Corredor A'
+          codigoBarra: '9788508123456', 
+          localizacao: 'Estante A - Prateleira 2'
         },
         { 
           id: 2, 
@@ -671,10 +679,10 @@
           categoria: 'Literatura Brasileira', 
           quantidade: 3, 
           disponivel: 3, 
-          descricao: 'Vida em um cortiço do RJ.', 
+          descricao: 'Romance naturalista que retrata a vida em um cortiço do Rio de Janeiro no século XIX.', 
           foto: '', 
-          codigoBarra: '987654321', 
-          localizacao: 'Corredor B'
+          codigoBarra: '9788516987654', 
+          localizacao: 'Estante A - Prateleira 3'
         }
       ],
       emprestimos: [],
@@ -1227,13 +1235,20 @@
               }
             </div>
             <div class="flex-1 min-w-0">
-              <div class="font-bold text-lg truncate">${livro.titulo}</div>
-              <div class="text-gray-600">${livro.autor}</div>
-              <div class="text-sm text-gray-500">${livro.editora || 'Editora não informada'}</div>
-              ${livro.codigoBarra ? `<div class="text-xs text-blue-600 font-mono">📊 ${livro.codigoBarra}</div>` : ''}
-              <div class="mt-2 text-sm flex gap-4">
-                <span>📚 ${livro.disponivel}/${livro.quantidade}</span>
-                ${livro.localizacao ? `<span>📍 ${livro.localizacao}</span>` : ''}
+              <div class="font-bold text-lg truncate" title="${livro.titulo}">${livro.titulo}</div>
+              <div class="text-gray-600 truncate" title="${livro.autor}">${livro.autor}</div>
+              <div class="text-sm text-gray-500 truncate" title="${livro.editora || 'Editora não informada'}">${livro.editora || 'Editora não informada'}</div>
+              ${livro.categoria ? `<div class="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded-full inline-block mt-1">${livro.categoria}</div>` : ''}
+              ${livro.codigoBarra ? `<div class="text-xs text-blue-600 font-mono mt-1">📊 ${livro.codigoBarra}</div>` : ''}
+              <div class="mt-2 text-sm flex flex-wrap gap-3">
+                <span class="flex items-center gap-1">📚 <strong>${livro.disponivel}/${livro.quantidade}</strong></span>
+                ${livro.localizacao ? `<span class="flex items-center gap-1">📍 ${livro.localizacao}</span>` : ''}
+              </div>
+              ${livro.descricao ? `<div class="text-xs text-gray-500 mt-2 line-clamp-2" title="${livro.descricao}">${livro.descricao}</div>` : ''}
+              <div class="mt-2">
+                <span class="px-2 py-1 text-xs rounded-full ${livro.disponivel > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                  ${livro.disponivel > 0 ? '✅ Disponível' : '❌ Indisponível'}
+                </span>
               </div>
               ${canEdit ? `
                 <div class="mt-3 flex gap-2">
@@ -1276,18 +1291,27 @@
       const formData = new FormData(event.target);
       const fotoFile = document.getElementById('addBookFoto').files[0];
       
+      const quantidade = parseInt(formData.get('quantidade'));
+      const disponivel = parseInt(formData.get('disponivel'));
+      
+      // Verifica se a quantidade disponível não é maior que a total
+      if (disponivel > quantidade) {
+        alert('❌ A quantidade disponível não pode ser maior que a quantidade total.');
+        return;
+      }
+      
       const livro = {
         id: database.nextId.livros++,
         titulo: formData.get('titulo').trim(),
         autor: formData.get('autor').trim(),
+        editora: formData.get('editora').trim(),
         categoria: formData.get('categoria').trim(),
-        quantidade: parseInt(formData.get('quantidade')),
-        disponivel: parseInt(formData.get('quantidade')),
-        editora: '',
-        descricao: '',
-        foto: '',
-        codigoBarra: '',
-        localizacao: ''
+        quantidade: quantidade,
+        disponivel: disponivel,
+        codigoBarra: formData.get('codigoBarra').trim(),
+        localizacao: formData.get('localizacao').trim(),
+        descricao: formData.get('descricao').trim(),
+        foto: ''
       };
       
       if (fotoFile) {
@@ -2433,5 +2457,5 @@
     window.copyMergedBackup = copyMergedBackup;
     window.applyMergedBackup = applyMergedBackup;
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9933ba2b43c91352',t:'MTc2MTI0ODY0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'993433ede198cd97',t:'MTc2MTI1MzYzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
