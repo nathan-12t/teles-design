@@ -512,6 +512,50 @@
     </div>
   </div>
 
+  <!-- Edit Empréstimo Modal -->
+  <div id="editEmprestimoModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-lg">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xl font-bold">Editar Empréstimo</h3>
+        <button onclick="closeModal('editEmprestimoModal')" class="text-gray-500 hover:text-gray-700">✕</button>
+      </div>
+      <form id="editEmprestimoForm" class="space-y-4">
+        <input type="hidden" id="editEmprestimoId" name="id">
+        <div>
+          <label for="editEmprestimoAluno" class="block text-sm font-medium mb-1">Aluno *</label>
+          <select id="editEmprestimoAluno" name="alunoId" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
+            <option value="">Selecione o aluno...</option>
+          </select>
+        </div>
+        <div>
+          <label for="editEmprestimoLivro" class="block text-sm font-medium mb-1">Livro *</label>
+          <select id="editEmprestimoLivro" name="livroId" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
+            <option value="">Selecione o livro...</option>
+          </select>
+        </div>
+        <div>
+          <label for="editEmprestimoDataEmprestimo" class="block text-sm font-medium mb-1">Data de Empréstimo *</label>
+          <input id="editEmprestimoDataEmprestimo" type="date" name="dataEmprestimo" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/>
+        </div>
+        <div>
+          <label for="editEmprestimoDataDevolucao" class="block text-sm font-medium mb-1">Data de Devolução *</label>
+          <input id="editEmprestimoDataDevolucao" type="date" name="dataDevolucao" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500"/>
+        </div>
+        <div>
+          <label for="editEmprestimoStatus" class="block text-sm font-medium mb-1">Status *</label>
+          <select id="editEmprestimoStatus" name="status" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500">
+            <option value="ativo">Ativo</option>
+            <option value="devolvido">Devolvido</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('editEmprestimoModal')" class="px-4 py-2 border rounded-lg">Cancelar</button>
+          <button class="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-lg">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Edit Livro Modal -->
   <div id="editBookModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -1772,9 +1816,15 @@
               </span>
             </td>
             <td class="px-6 py-4">
-              ${emprestimo.status === 'ativo' ? `
-                <button onclick="devolverLivro(${emprestimo.id})" class="text-green-600 hover:text-green-800 text-sm">✅ Devolver</button>
-              ` : '-'}
+              <div class="flex gap-2">
+                ${emprestimo.status === 'ativo' ? `
+                  <button onclick="devolverLivro(${emprestimo.id})" class="text-green-600 hover:text-green-800 text-sm">✅ Devolver</button>
+                ` : ''}
+                ${currentUser && currentUser.tipo === 'admin' ? `
+                  <button onclick="editEmprestimo(${emprestimo.id})" class="text-blue-600 hover:text-blue-800 text-sm">✏️ Editar</button>
+                  <button onclick="deleteEmprestimo(${emprestimo.id})" class="text-red-600 hover:text-red-800 text-sm">🗑️ Excluir</button>
+                ` : ''}
+              </div>
             </td>
           </tr>
         `;
@@ -1841,6 +1891,151 @@
       
       updateDashboard();
       alert('✅ Livro devolvido com sucesso!');
+    }
+
+    function editEmprestimo(id) {
+      const emprestimo = database.emprestimos.find(e => e.id === id);
+      
+      if (!emprestimo) {
+        alert('❌ Empréstimo não encontrado.');
+        return;
+      }
+      
+      // Carrega dados para os selects
+      const alunoSelect = document.getElementById('editEmprestimoAluno');
+      const livroSelect = document.getElementById('editEmprestimoLivro');
+      
+      // Carrega todos os alunos
+      const alunos = database.usuarios.filter(u => u.tipo === 'aluno' && u.status === 'ativo');
+      alunoSelect.innerHTML = '<option value="">Selecione o aluno...</option>' +
+        alunos.map(aluno => `<option value="${aluno.id}">${aluno.nome}</option>`).join('');
+      
+      // Carrega todos os livros (incluindo o atual do empréstimo)
+      livroSelect.innerHTML = '<option value="">Selecione o livro...</option>' +
+        database.livros.map(livro => `<option value="${livro.id}">${livro.titulo} - ${livro.autor}</option>`).join('');
+      
+      // Preenche o formulário
+      document.getElementById('editEmprestimoId').value = emprestimo.id;
+      document.getElementById('editEmprestimoAluno').value = emprestimo.alunoId;
+      document.getElementById('editEmprestimoLivro').value = emprestimo.livroId;
+      document.getElementById('editEmprestimoDataEmprestimo').value = emprestimo.dataEmprestimo;
+      document.getElementById('editEmprestimoDataDevolucao').value = emprestimo.dataDevolucao;
+      document.getElementById('editEmprestimoStatus').value = emprestimo.status;
+      
+      showModal('editEmprestimoModal');
+    }
+
+    function handleEditEmprestimo(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const id = parseInt(formData.get('id'));
+      
+      const emprestimoIndex = database.emprestimos.findIndex(e => e.id === id);
+      
+      if (emprestimoIndex === -1) {
+        alert('❌ Empréstimo não encontrado.');
+        return;
+      }
+      
+      const emprestimo = database.emprestimos[emprestimoIndex];
+      const livroAnterior = database.livros.find(l => l.id === emprestimo.livroId);
+      const novoLivroId = parseInt(formData.get('livroId'));
+      const novoLivro = database.livros.find(l => l.id === novoLivroId);
+      const statusAnterior = emprestimo.status;
+      const novoStatus = formData.get('status');
+      
+      // Se mudou o livro, ajusta disponibilidade
+      if (emprestimo.livroId !== novoLivroId) {
+        // Devolve o livro anterior (se estava ativo)
+        if (statusAnterior === 'ativo' && livroAnterior) {
+          livroAnterior.disponivel++;
+        }
+        
+        // Empresta o novo livro (se ficará ativo)
+        if (novoStatus === 'ativo' && novoLivro) {
+          if (novoLivro.disponivel <= 0) {
+            alert('❌ O livro selecionado não está disponível.');
+            return;
+          }
+          novoLivro.disponivel--;
+        }
+      } else {
+        // Mesmo livro, mas mudou status
+        if (statusAnterior === 'ativo' && novoStatus === 'devolvido' && livroAnterior) {
+          livroAnterior.disponivel++;
+        } else if (statusAnterior === 'devolvido' && novoStatus === 'ativo' && novoLivro) {
+          if (novoLivro.disponivel <= 0) {
+            alert('❌ O livro não está disponível para reativar o empréstimo.');
+            return;
+          }
+          novoLivro.disponivel--;
+        }
+      }
+      
+      // Atualiza o empréstimo
+      emprestimo.alunoId = parseInt(formData.get('alunoId'));
+      emprestimo.livroId = novoLivroId;
+      emprestimo.dataEmprestimo = formData.get('dataEmprestimo');
+      emprestimo.dataDevolucao = formData.get('dataDevolucao');
+      emprestimo.status = novoStatus;
+      
+      // Se foi marcado como devolvido, adiciona data real de devolução
+      if (novoStatus === 'devolvido' && statusAnterior === 'ativo') {
+        emprestimo.dataRealDevolucao = new Date().toISOString().split('T')[0];
+      } else if (novoStatus === 'ativo') {
+        delete emprestimo.dataRealDevolucao;
+      }
+      
+      saveDatabase();
+      
+      closeModal('editEmprestimoModal');
+      
+      if (document.getElementById('emprestimosTab').classList.contains('hidden') === false) {
+        loadEmprestimos();
+      }
+      if (document.getElementById('devolucoesTab').classList.contains('hidden') === false) {
+        loadDevolucoesPendentes();
+      }
+      
+      updateDashboard();
+      alert('✅ Empréstimo atualizado com sucesso!');
+    }
+
+    function deleteEmprestimo(id) {
+      const emprestimo = database.emprestimos.find(e => e.id === id);
+      
+      if (!emprestimo) {
+        alert('❌ Empréstimo não encontrado.');
+        return;
+      }
+      
+      const aluno = database.usuarios.find(u => u.id === emprestimo.alunoId);
+      const livro = database.livros.find(l => l.id === emprestimo.livroId);
+      
+      if (!confirm(`❌ Excluir empréstimo?\n\nAluno: ${aluno?.nome || 'Não encontrado'}\nLivro: ${livro?.titulo || 'Não encontrado'}\nData: ${formatDate(emprestimo.dataEmprestimo)}\n\nEsta ação não pode ser desfeita.`)) {
+        return;
+      }
+      
+      // Se o empréstimo estava ativo, devolve o livro
+      if (emprestimo.status === 'ativo' && livro) {
+        livro.disponivel++;
+      }
+      
+      // Remove o empréstimo
+      database.emprestimos = database.emprestimos.filter(e => e.id !== id);
+      
+      saveDatabase();
+      
+      if (document.getElementById('emprestimosTab').classList.contains('hidden') === false) {
+        loadEmprestimos();
+      }
+      if (document.getElementById('devolucoesTab').classList.contains('hidden') === false) {
+        loadDevolucoesPendentes();
+      }
+      
+      updateDashboard();
+      alert('✅ Empréstimo excluído com sucesso!');
     }
 
     // ===== FUNÇÕES DE BACKUP =====
@@ -2102,51 +2297,71 @@
       let added = 0, skipped = 0, merged = 0, replaced = 0;
       
       newUsers.forEach(newUser => {
-        const existingIndex = mergedBackupData.usuarios.findIndex(u => 
+        // Verifica se usuário já existe (por login OU por ID)
+        const existingByLogin = mergedBackupData.usuarios.find(u => 
           u.login.toLowerCase() === newUser.login.toLowerCase()
         );
+        const existingById = mergedBackupData.usuarios.find(u => u.id === newUser.id);
         
-        if (existingIndex === -1) {
-          // Usuário não existe, adiciona
+        // Se não existe nem por login nem por ID, adiciona
+        if (!existingByLogin && !existingById) {
           mergedBackupData.usuarios.push({ ...newUser });
           added++;
-        } else {
-          // Usuário já existe, aplica estratégia de conflito
-          const existingUser = mergedBackupData.usuarios[existingIndex];
-          
-          switch (conflictMode) {
-            case 'skip':
-              skipped++;
-              break;
-              
-            case 'rename':
-              const renamedUser = { 
-                ...newUser, 
-                login: `${newUser.login}_${Date.now()}`,
-                nome: `${newUser.nome} (Importado)`
-              };
-              mergedBackupData.usuarios.push(renamedUser);
-              added++;
-              break;
-              
-            case 'merge':
-              existingUser.livrosLidos = Math.max(existingUser.livrosLidos || 0, newUser.livrosLidos || 0);
-              if (newUser.turma && !existingUser.turma) {
-                existingUser.turma = newUser.turma;
-              }
-              merged++;
-              break;
-              
-            case 'replace':
-              mergedBackupData.usuarios[existingIndex] = { ...newUser };
-              replaced++;
-              break;
-          }
+          return;
+        }
+        
+        // Se existe, verifica se são exatamente iguais
+        const existing = existingByLogin || existingById;
+        const areIdentical = (
+          existing.nome === newUser.nome &&
+          existing.login === newUser.login &&
+          existing.senha === newUser.senha &&
+          existing.tipo === newUser.tipo &&
+          existing.turma === newUser.turma &&
+          existing.status === newUser.status
+        );
+        
+        if (areIdentical) {
+          skipped++; // Dados idênticos, pula
+          return;
+        }
+        
+        // Dados diferentes, aplica estratégia de conflito
+        switch (conflictMode) {
+          case 'skip':
+            skipped++;
+            break;
+            
+          case 'rename':
+            const renamedUser = { 
+              ...newUser, 
+              id: mergedBackupData.nextId.usuarios++,
+              login: `${newUser.login}_${Date.now()}`,
+              nome: `${newUser.nome} (Backup)`
+            };
+            mergedBackupData.usuarios.push(renamedUser);
+            added++;
+            break;
+            
+          case 'merge':
+            // Mescla apenas campos vazios ou melhores
+            if (newUser.turma && !existing.turma) existing.turma = newUser.turma;
+            if ((newUser.livrosLidos || 0) > (existing.livrosLidos || 0)) {
+              existing.livrosLidos = newUser.livrosLidos;
+            }
+            merged++;
+            break;
+            
+          case 'replace':
+            const existingIndex = mergedBackupData.usuarios.findIndex(u => u.id === existing.id);
+            mergedBackupData.usuarios[existingIndex] = { ...newUser };
+            replaced++;
+            break;
         }
       });
       
       if (createLog) {
-        mergeLog.push(`👥 Usuários: +${added} adicionados, ${skipped} pulados, ${merged} mesclados, ${replaced} substituídos`);
+        mergeLog.push(`👥 Usuários: +${added} novos, ${skipped} idênticos, ${merged} mesclados, ${replaced} substituídos`);
       }
     }
 
@@ -2154,56 +2369,77 @@
       let added = 0, skipped = 0, merged = 0, replaced = 0;
       
       newBooks.forEach(newBook => {
-        const existingIndex = mergedBackupData.livros.findIndex(l => 
-          l.titulo.toLowerCase() === newBook.titulo.toLowerCase() && 
-          l.autor.toLowerCase() === newBook.autor.toLowerCase()
+        // Verifica se livro já existe (por título+autor OU por ID)
+        const existingByContent = mergedBackupData.livros.find(l => 
+          l.titulo.toLowerCase().trim() === newBook.titulo.toLowerCase().trim() && 
+          l.autor.toLowerCase().trim() === newBook.autor.toLowerCase().trim()
         );
+        const existingById = mergedBackupData.livros.find(l => l.id === newBook.id);
         
-        if (existingIndex === -1) {
-          // Livro não existe, adiciona
+        // Se não existe nem por conteúdo nem por ID, adiciona
+        if (!existingByContent && !existingById) {
           mergedBackupData.livros.push({ ...newBook });
           added++;
-        } else {
-          // Livro já existe, aplica estratégia de conflito
-          const existingBook = mergedBackupData.livros[existingIndex];
-          
-          switch (conflictMode) {
-            case 'skip':
-              skipped++;
-              break;
-              
-            case 'merge':
-              existingBook.quantidade += newBook.quantidade;
-              existingBook.disponivel += newBook.disponivel;
-              if (newBook.editora && !existingBook.editora) {
-                existingBook.editora = newBook.editora;
-              }
-              if (newBook.categoria && !existingBook.categoria) {
-                existingBook.categoria = newBook.categoria;
-              }
-              merged++;
-              break;
-              
-            case 'replace':
-              mergedBackupData.livros[existingIndex] = { ...newBook };
-              replaced++;
-              break;
-              
-            case 'keep_both':
-              const duplicatedBook = { 
-                ...newBook, 
-                titulo: `${newBook.titulo} (Cópia)`,
-                id: mergedBackupData.nextId.livros++
-              };
-              mergedBackupData.livros.push(duplicatedBook);
-              added++;
-              break;
-          }
+          return;
+        }
+        
+        // Se existe, verifica se são exatamente iguais
+        const existing = existingByContent || existingById;
+        const areIdentical = (
+          existing.titulo === newBook.titulo &&
+          existing.autor === newBook.autor &&
+          existing.editora === newBook.editora &&
+          existing.categoria === newBook.categoria &&
+          existing.quantidade === newBook.quantidade &&
+          existing.codigoBarra === newBook.codigoBarra &&
+          existing.localizacao === newBook.localizacao &&
+          existing.descricao === newBook.descricao
+        );
+        
+        if (areIdentical) {
+          skipped++; // Dados idênticos, pula
+          return;
+        }
+        
+        // Dados diferentes, aplica estratégia de conflito
+        switch (conflictMode) {
+          case 'skip':
+            skipped++;
+            break;
+            
+          case 'merge':
+            // Soma quantidades e melhora informações
+            existing.quantidade += newBook.quantidade;
+            existing.disponivel += newBook.disponivel;
+            if (newBook.editora && !existing.editora) existing.editora = newBook.editora;
+            if (newBook.categoria && !existing.categoria) existing.categoria = newBook.categoria;
+            if (newBook.codigoBarra && !existing.codigoBarra) existing.codigoBarra = newBook.codigoBarra;
+            if (newBook.localizacao && !existing.localizacao) existing.localizacao = newBook.localizacao;
+            if (newBook.descricao && !existing.descricao) existing.descricao = newBook.descricao;
+            if (newBook.foto && !existing.foto) existing.foto = newBook.foto;
+            merged++;
+            break;
+            
+          case 'replace':
+            const existingIndex = mergedBackupData.livros.findIndex(l => l.id === existing.id);
+            mergedBackupData.livros[existingIndex] = { ...newBook };
+            replaced++;
+            break;
+            
+          case 'keep_both':
+            const duplicatedBook = { 
+              ...newBook, 
+              id: mergedBackupData.nextId.livros++,
+              titulo: `${newBook.titulo} (Backup ${Date.now()})`
+            };
+            mergedBackupData.livros.push(duplicatedBook);
+            added++;
+            break;
         }
       });
       
       if (createLog) {
-        mergeLog.push(`📚 Livros: +${added} adicionados, ${skipped} pulados, ${merged} mesclados, ${replaced} substituídos`);
+        mergeLog.push(`📚 Livros: +${added} novos, ${skipped} idênticos, ${merged} mesclados, ${replaced} substituídos`);
       }
     }
 
@@ -2211,35 +2447,74 @@
       let added = 0, skipped = 0;
       
       newLoans.forEach(newLoan => {
-        const shouldAdd = (() => {
-          switch (conflictMode) {
-            case 'merge_all':
-              return true;
-              
-            case 'active_only':
-              return newLoan.status === 'ativo';
-              
-            case 'recent_only':
-              const existingLoan = mergedBackupData.emprestimos.find(e => 
-                e.alunoId === newLoan.alunoId && e.livroId === newLoan.livroId
-              );
-              return !existingLoan || new Date(newLoan.dataEmprestimo) > new Date(existingLoan.dataEmprestimo);
-              
-            default:
-              return true;
-          }
-        })();
+        // Verifica se empréstimo já existe (por ID ou por combinação única)
+        const existingById = mergedBackupData.emprestimos.find(e => e.id === newLoan.id);
+        const existingByData = mergedBackupData.emprestimos.find(e => 
+          e.alunoId === newLoan.alunoId && 
+          e.livroId === newLoan.livroId && 
+          e.dataEmprestimo === newLoan.dataEmprestimo
+        );
         
-        if (shouldAdd) {
-          mergedBackupData.emprestimos.push({ ...newLoan });
-          added++;
+        const existing = existingById || existingByData;
+        
+        // Se não existe, verifica se deve adicionar baseado na estratégia
+        if (!existing) {
+          const shouldAdd = (() => {
+            switch (conflictMode) {
+              case 'merge_all':
+                return true;
+                
+              case 'active_only':
+                return newLoan.status === 'ativo';
+                
+              case 'recent_only':
+                // Só adiciona se for mais recente que outros do mesmo aluno+livro
+                const olderLoan = mergedBackupData.emprestimos.find(e => 
+                  e.alunoId === newLoan.alunoId && 
+                  e.livroId === newLoan.livroId &&
+                  new Date(e.dataEmprestimo) < new Date(newLoan.dataEmprestimo)
+                );
+                return !olderLoan;
+                
+              default:
+                return true;
+            }
+          })();
+          
+          if (shouldAdd) {
+            mergedBackupData.emprestimos.push({ ...newLoan });
+            added++;
+          } else {
+            skipped++;
+          }
         } else {
-          skipped++;
+          // Empréstimo já existe, verifica se são idênticos
+          const areIdentical = (
+            existing.alunoId === newLoan.alunoId &&
+            existing.livroId === newLoan.livroId &&
+            existing.dataEmprestimo === newLoan.dataEmprestimo &&
+            existing.dataDevolucao === newLoan.dataDevolucao &&
+            existing.status === newLoan.status
+          );
+          
+          if (areIdentical) {
+            skipped++; // Dados idênticos, pula
+          } else {
+            // Se for mais recente, atualiza
+            if (conflictMode === 'recent_only' && 
+                new Date(newLoan.dataEmprestimo) > new Date(existing.dataEmprestimo)) {
+              const existingIndex = mergedBackupData.emprestimos.findIndex(e => e.id === existing.id);
+              mergedBackupData.emprestimos[existingIndex] = { ...newLoan };
+              added++;
+            } else {
+              skipped++;
+            }
+          }
         }
       });
       
       if (createLog) {
-        mergeLog.push(`📋 Empréstimos: +${added} adicionados, ${skipped} pulados`);
+        mergeLog.push(`📋 Empréstimos: +${added} novos/atualizados, ${skipped} idênticos/ignorados`);
       }
     }
 
@@ -2393,6 +2668,7 @@
       document.getElementById('editBookForm').addEventListener('submit', handleEditBook);
       document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
       document.getElementById('addEmprestimoForm').addEventListener('submit', handleAddEmprestimo);
+      document.getElementById('editEmprestimoForm').addEventListener('submit', handleEditEmprestimo);
       
       // Preview de imagens
       document.getElementById('addBookFoto').addEventListener('change', function(e) {
@@ -2445,6 +2721,8 @@
     window.importUsers = importUsers;
     window.deleteUsuario = deleteUsuario;
     window.devolverLivro = devolverLivro;
+    window.editEmprestimo = editEmprestimo;
+    window.deleteEmprestimo = deleteEmprestimo;
     window.clearLivrosFilters = clearLivrosFilters;
     window.exportarBackup = exportarBackup;
     window.copiarBackup = copiarBackup;
@@ -2457,5 +2735,5 @@
     window.copyMergedBackup = copyMergedBackup;
     window.applyMergedBackup = applyMergedBackup;
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'993433ede198cd97',t:'MTc2MTI1MzYzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99345aa56077f1db',t:'MTc2MTI1NTIyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
